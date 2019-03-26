@@ -1,0 +1,39 @@
+{
+  "name": "infinitiweb/yii2-supervisor-manager",
+  "description": "Supervisor manager for Yii2",
+  "type": "yii2-extension",
+  "minimum-stability": "stable",
+  "keywords": [
+    "yii2",
+    "infinitiweb",
+    "supervisor",
+    "supervisor-manager",
+    "supervisor manager",
+    "supervisor yii2",
+    "infinitiweb supervisor"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Drogin Anton",
+      "email": "anton@drogin.ru"
+    }
+  ],
+  "require": {
+    "php": ">=7.2",
+    "yiisoft/yii2": ">=2.0.15",
+    "yiisoft/yii2-bootstrap": "~2.0",
+    "zendframework/zend-xmlrpc": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "infinitiweb\\modules\\yii2\\supervisor-manager\\": "src/"
+    }
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    }
+  ]
+}
