@@ -50,4 +50,3 @@ echo SupervisorManagerWidget::widget();
 
 ?>
 ```
-TEST
