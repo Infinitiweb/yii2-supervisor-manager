@@ -27,7 +27,7 @@
   },
   "autoload": {
     "psr-4": {
-      "infinitiweb\\modules\\yii2\\supervisor-manager\\": "src/"
+      "infinitiweb\\supervisorManager\\": "src/"
     }
   },
   "repositories": [
