@@ -2,7 +2,7 @@
   "name": "infinitiweb/yii2-supervisor-manager",
   "description": "Supervisor manager for Yii2",
   "type": "yii2-extension",
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "keywords": [
     "yii2",
     "infinitiweb",
@@ -20,8 +20,8 @@
     }
   ],
   "require": {
-    "php": ">=7.1",
-    "yiisoft/yii2": ">=2.0.14",
+    "php": ">=7.2",
+    "yiisoft/yii2": ">=2.0.15",
     "yiisoft/yii2-bootstrap": "~2.0",
     "zendframework/zend-xmlrpc": "*"
   },
