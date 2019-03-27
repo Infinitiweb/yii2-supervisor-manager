@@ -21,7 +21,7 @@ to the require section of your `composer.json` file.
 Usage
 -----
 
-Add extension module in app config:
+Add module of extension in app config:
 ```$xslt
 ...
     'modules' => [
@@ -39,7 +39,7 @@ Add extension module in app config:
 ...
 ```
 
-Simply use it in your code by  :
+Simply use it in your code by:
 
 ```$xslt
 <?php
