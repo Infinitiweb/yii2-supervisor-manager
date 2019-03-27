@@ -35,7 +35,7 @@ class Module extends \yii\base\Module
         );
 
         \Yii::configure($this, require(__DIR__ . '/config/supervisor-connection.php'));
-        \Yii::setAlias('@infinitiwebSupervisorManager', sprintf("%s/src", __DIR__));
+        \Yii::setAlias('@infinitiwebSupervisorManager', sprintf("%s", __DIR__));
 
         $this->params['supervisorConnection'] = array_merge(
             $this->params['supervisorConnection'], $this->authData
