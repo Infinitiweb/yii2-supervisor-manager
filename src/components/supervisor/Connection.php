@@ -2,9 +2,9 @@
 
 namespace infinitiweb\supervisorManager\components\supervisor;
 
-use supervisormanager\components\supervisor\exceptions\AuthenticationException;
-use supervisormanager\components\supervisor\exceptions\ConnectionException;
-use supervisormanager\components\supervisor\exceptions\SupervisorException;
+use infinitiweb\supervisorManager\components\supervisor\exceptions\AuthenticationException;
+use infinitiweb\supervisorManager\components\supervisor\exceptions\ConnectionException;
+use infinitiweb\supervisorManager\components\supervisor\exceptions\SupervisorException;
 use yii\base\Component;
 use Zend\XmlRpc\Client as XmlRpcClient;
 use Zend\XmlRpc\Client\Exception\HttpException;
@@ -18,31 +18,24 @@ use Zend\Http\Client\Adapter\Exception\RuntimeException;
  */
 class Connection extends Component implements ConnectionInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $url;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     public $user;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     public $password;
 
-    /**
-     * @var XmlRpcClient
-     */
+    /** @var XmlRpcClient */
     private $_connection;
 
     /**
      * Connection constructor.
      *
      * @param XmlRpcClient $client
-     * @param array        $config
+     * @param array $config
+     * @throws AuthenticationException
+     * @throws ConnectionException
+     * @throws SupervisorException
      */
     public function __construct(XmlRpcClient $client, array $config = [])
     {
@@ -51,12 +44,11 @@ class Connection extends Component implements ConnectionInterface
         $this->_connection = $client;
 
         $this->_initConnection();
-
         $this->checkConnection();
     }
 
     /**
-     * @return XmlRpcClient
+     * @return \Zend\Http\Client|XmlRpcClient
      */
     private function _initConnection()
     {
@@ -75,7 +67,7 @@ class Connection extends Component implements ConnectionInterface
 
     /**
      * @param string $method
-     * @param array  $params
+     * @param array $params
      *
      * @return mixed
      * @throws AuthenticationException
@@ -105,6 +97,12 @@ class Connection extends Component implements ConnectionInterface
         }
     }
 
+    /**
+     * @return int
+     * @throws AuthenticationException
+     * @throws ConnectionException
+     * @throws SupervisorException
+     */
     public function checkConnection()
     {
         return (int)$this->callMethod('supervisor.getAPIVersion');

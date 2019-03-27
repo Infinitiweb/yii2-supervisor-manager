@@ -141,7 +141,7 @@ class ProcessConfig extends Component
     /**
      * ProcessConfig constructor.
      *
-     * @param array $programName
+     * @param string $programName
      * @param array $config
      * @throws \Exception
      * @codeCoverageIgnore
