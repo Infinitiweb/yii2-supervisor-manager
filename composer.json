@@ -2,7 +2,6 @@
   "name": "infinitiweb/yii2-supervisor-manager",
   "description": "Supervisor manager for Yii2",
   "type": "yii2-extension",
-  "minimum-stability": "stable",
   "keywords": [
     "yii2",
     "infinitiweb",
