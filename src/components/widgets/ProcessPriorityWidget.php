@@ -35,7 +35,7 @@ class ProcessPriorityWidget extends Widget
             'priority',
             [
                 'priority' => $this->priority,
-//                'progressBarWidth' => $this->_getPriorityInPercent(),
+                'progressBarWidth' => $this->_getPriorityInPercent(),
                 'progressBarClass' => $this->_getProgressBarClass()
             ]
         );
