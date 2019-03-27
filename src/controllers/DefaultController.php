@@ -94,7 +94,6 @@ class DefaultController extends Controller
         }
 
         $supervisorGroupForm = new SupervisorGroupForm();
-
         $dataProvider = new ArrayDataProvider(['models' => $groups]);
 
         return $this->_renderProcess(
@@ -316,11 +315,7 @@ class DefaultController extends Controller
      */
     private function _renderProcess($view, $data)
     {
-        if(\Yii::$app->request->getHeaders()->has('X-PJAX')) {
-            return $this->renderAjax($view, $data);
-        } else {
-            return $this->render($view, $data);
-        }
+        return $this->renderAjax($view, $data);
     }
 
     /**
