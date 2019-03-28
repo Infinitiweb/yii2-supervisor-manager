@@ -5,7 +5,7 @@ use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 
 /**
- * @var $supervisorGroupForm \supervisormanager\models\SupervisorGroupForm
+ * @var $supervisorGroupForm \infinitiweb\supervisorManager\models\SupervisorGroupForm
  */
 
 ?>

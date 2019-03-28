@@ -1,10 +1,15 @@
 <?php
 
-namespace supervisormanager\models;
+namespace infinitiweb\supervisorManager\models;
 
-use supervisormanager\components\supervisor\config\ProcessConfig;
+use infinitiweb\supervisorManager\components\supervisor\config\ProcessConfig;
 use yii\base\Model;
 
+/**
+ * Class SupervisorGroupForm
+ *
+ * @package infinitiweb\supervisorManager\models
+ */
 class SupervisorGroupForm extends Model
 {
     /** @var string */

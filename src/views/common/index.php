@@ -6,7 +6,7 @@ use yii\widgets\Pjax;
 /**
  * @var $this yii\web\View
  * @var $dataProvider yii\data\ActiveDataProvider
- * @var $supervisorGroupForm \supervisormanager\models\SupervisorGroupForm
+ * @var $supervisorGroupForm \infinitiweb\supervisorManager\models\SupervisorGroupForm
  */
 
 BaseAsset::register($this);

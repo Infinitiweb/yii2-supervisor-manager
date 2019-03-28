@@ -4,7 +4,7 @@ namespace infinitiweb\supervisorManager\widgets\supervisor;
 
 use infinitiweb\supervisorManager\components\supervisor\control\MainProcess;
 use infinitiweb\supervisorManager\components\supervisor\exceptions\ConnectionException;
-use supervisormanager\models\SupervisorGroupForm;
+use infinitiweb\supervisorManager\models\SupervisorGroupForm;
 use yii\base\Widget;
 use yii\data\ArrayDataProvider;
 

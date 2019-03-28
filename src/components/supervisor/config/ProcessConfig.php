@@ -3,7 +3,6 @@
 namespace infinitiweb\supervisorManager\components\supervisor\config;
 
 use infinitiweb\supervisorManager\components\supervisor\exceptions\ProcessConfigException;
-use supervisormanager\components\supervisor\config\ConfigFileHandler;
 use yii\base\Component;
 
 /**

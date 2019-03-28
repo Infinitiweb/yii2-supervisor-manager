@@ -1,13 +1,13 @@
 <?php
 
-namespace supervisormanager\components\supervisor\config;
+namespace infinitiweb\supervisorManager\components\supervisor\config;
 
 use yii\base\Component;
 
 /**
  * Class ConfigFileHandler
  *
- * @package supervisormanager\components\supervisor\config
+ * @package infinitiweb\supervisorManager\components\supervisor\config
  */
 class ConfigFileHandler extends Component
 {
