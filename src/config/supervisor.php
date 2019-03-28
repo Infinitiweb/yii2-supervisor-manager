@@ -1,6 +1,7 @@
 <?php
 
 use infinitiweb\supervisorManager\components\supervisor\Connection;
+use yii\filters\AccessControl;
 
 return [
     'components' => [],
@@ -13,6 +14,15 @@ return [
         ],
         'supervisorConfiguration' => [
             'configDir' => \Yii::getAlias('@app/config/supervisor'),
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
         ],
     ],
 ];

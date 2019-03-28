@@ -1,22 +1,33 @@
 <?php
 
-namespace infinitiweb\supervisorManager\widgets\supervisor;
+namespace infinitiweb\supervisorManager\widgets\supervisorManager;
 
 use infinitiweb\supervisorManager\components\supervisor\control\MainProcess;
 use infinitiweb\supervisorManager\components\supervisor\exceptions\ConnectionException;
 use infinitiweb\supervisorManager\models\SupervisorGroupForm;
+use infinitiweb\supervisorManager\Module;
 use yii\base\Widget;
 use yii\data\ArrayDataProvider;
 
 /**
  * Class SupervisorManagerWidget
  *
- * @package infinitiweb\supervisorManager\widgets\supervisor
+ * @package infinitiweb\supervisorManager\widgets\supervisorManager
  */
 class SupervisorManagerWidget extends Widget
 {
     /** @var string */
-    private const VIEWS_DIR = '@infinitiwebSupervisorManager/views/common';
+    private const VIEWS_DIR = '@infinitiweb/supervisorManager/views/common';
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeRun()
+    {
+        \Yii::$app->getModule('supervisor')->init();
+
+        return parent::beforeRun();
+    }
 
     /**
      * @inheritdoc

@@ -14,7 +14,7 @@ use yii\web\YiiAsset;
 class BaseAsset extends AssetBundle
 {
     /** @inheritdoc */
-    public $sourcePath = '@infinitiwebSupervisorManager/assets/base/assets';
+    public $sourcePath = '@infinitiweb/supervisorManager/assets/base/assets';
 
     /** @inheritdoc */
     public $js = [

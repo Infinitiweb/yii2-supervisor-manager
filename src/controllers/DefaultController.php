@@ -28,7 +28,7 @@ use yii\web\Response;
 class DefaultController extends Controller
 {
     /** @var string */
-    private const VIEWS_DIR = '@infinitiwebSupervisorManager/views/common';
+    private const VIEWS_DIR = '@infinitiweb/supervisorManager/views/common';
 
     /**
      * @inheritdoc
@@ -36,15 +36,7 @@ class DefaultController extends Controller
     public function behaviors()
     {
         return [
-            'access' => [
-                'class' => AccessControl::class,
-                'rules' => [
-                    [
-                        'allow' => true,
-                        'roles' => ['@'],
-                    ],
-                ],
-            ],
+            'access' => \Yii::$app->params['supervisorConfiguration']['access'],
             [
                 'class' => ContentNegotiator::class,
                 'except' => [

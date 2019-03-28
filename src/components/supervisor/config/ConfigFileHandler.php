@@ -198,9 +198,9 @@ class ConfigFileHandler extends Component
     }
 
     /**
-     * @param string $configDir
+     * @param string|null $configDir
      */
-    private function setConfigDir(string $configDir): void
+    private function setConfigDir(?string $configDir): void
     {
         if (!$configDir) {
             $this->configDir = \Yii::$app->params['supervisorConfiguration']['configDir'];

@@ -29,16 +29,22 @@ class Module extends \yii\base\Module
     public function init()
     {
         parent::init();
+        $this->initExtension();
+    }
 
+    /**
+     * @return void
+     */
+    public function initExtension(): void
+    {
         Event::on(Supervisor::class, Supervisor::EVENT_CONFIG_CHANGED, function () {
             exec('supervisorctl update', $output, $status);
         });
 
         \Yii::configure($this, require(__DIR__ . '/config/supervisor.php'));
-        \Yii::setAlias('@infinitiwebSupervisorManager', __DIR__);
+        \Yii::$app->params['supervisorConfiguration'] = array_merge($this->params['supervisorConfiguration'], $this->configData);
 
         $this->params['supervisorConnection'] = array_merge($this->params['supervisorConnection'], $this->authData);
-        $this->params['supervisorConfiguration'] = array_merge($this->params['supervisorConfiguration'], $this->configData);
 
         $this->registerIoC();
     }

@@ -35,6 +35,15 @@ Add module of extension in app config:
             ],
             'supervisorConfiguration' => [
                 'configDir' => \Yii::getAlias('@common/config/supervisor'),
+                'access' => [
+                    'class' => AccessControl::class,
+                    'rules' => [
+                        [
+                            'allow' => true,
+                            'roles' => ['@'],
+                        ],
+                    ],
+                ],
             ],
         ],
     ...
