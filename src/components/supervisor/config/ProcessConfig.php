@@ -1,14 +1,15 @@
 <?php
 
-namespace supervisormanager\components\supervisor\config;
+namespace infinitiweb\supervisorManager\components\supervisor\config;
 
 use infinitiweb\supervisorManager\components\supervisor\exceptions\ProcessConfigException;
+use supervisormanager\components\supervisor\config\ConfigFileHandler;
 use yii\base\Component;
 
 /**
  * Class ProcessConfig
  *
- * @package supervisormanager\components\supervisor\config
+ * @package infinitiweb\supervisorManager\components\supervisor\config
  */
 class ProcessConfig extends Component
 {

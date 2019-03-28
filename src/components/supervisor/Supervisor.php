@@ -11,12 +11,11 @@ use yii\base\Component;
  */
 class Supervisor extends Component
 {
+    /** @var string */
     const EVENT_CONFIG_CHANGED = 'configChangedEvent';
 
-    /**
-     * @var ConnectionInterface
-     */
-    public $_connection;
+    /** @var ConnectionInterface */
+    public $connection;
 
     /**
      * Supervisor constructor.
@@ -26,7 +25,7 @@ class Supervisor extends Component
      */
     public function __construct(ConnectionInterface $connection, array $config = [])
     {
-        $this->_connection = $connection;
+        $this->connection = $connection;
 
         parent::__construct($config);
     }

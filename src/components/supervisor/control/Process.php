@@ -5,7 +5,7 @@ namespace infinitiweb\supervisorManager\components\supervisor\control;
 use infinitiweb\supervisorManager\components\supervisor\ConnectionInterface;
 use infinitiweb\supervisorManager\components\supervisor\exceptions\ProcessException;
 use infinitiweb\supervisorManager\components\supervisor\Supervisor;
-use supervisormanager\components\supervisor\config\ProcessConfig;
+use infinitiweb\supervisorManager\components\supervisor\config\ProcessConfig;
 
 /**
  * Class Process
@@ -35,7 +35,7 @@ class Process extends Supervisor
      */
     public function stopProcess()
     {
-        return $this->_connection->callMethod('supervisor.stopProcess', [$this->processName]);
+        return $this->connection->callMethod('supervisor.stopProcess', [$this->processName]);
     }
 
     /**
@@ -43,7 +43,7 @@ class Process extends Supervisor
      */
     public function startProcess()
     {
-        return $this->_connection->callMethod('supervisor.startProcess', [$this->processName]);
+        return $this->connection->callMethod('supervisor.startProcess', [$this->processName]);
     }
 
     /**
@@ -51,7 +51,7 @@ class Process extends Supervisor
      */
     public function getProcessInfo()
     {
-        return $this->_connection->callMethod('supervisor.getProcessInfo', [$this->processName]);
+        return $this->connection->callMethod('supervisor.getProcessInfo', [$this->processName]);
     }
 
     /**
