@@ -26,7 +26,7 @@ class Connection extends Component implements ConnectionInterface
     public $password;
 
     /** @var XmlRpcClient */
-    private $connection;
+    private $_connection;
 
     /**
      * Connection constructor.
@@ -41,7 +41,7 @@ class Connection extends Component implements ConnectionInterface
     {
         parent::__construct($config);
 
-        $this->connection = $client;
+        $this->_connection = $client;
 
         $this->initConnection();
         $this->checkConnection();
@@ -52,7 +52,7 @@ class Connection extends Component implements ConnectionInterface
      */
     private function initConnection()
     {
-        return $this->connection->getHttpClient()->setAuth($this->user, $this->password);
+        return $this->_connection->getHttpClient()->setAuth($this->user, $this->password);
     }
 
     /**
@@ -60,7 +60,7 @@ class Connection extends Component implements ConnectionInterface
      */
     public function getConnection()
     {
-        return $this->connection;
+        return $this->_connection;
     }
 
     /**
@@ -75,7 +75,7 @@ class Connection extends Component implements ConnectionInterface
     public function callMethod($method, array $params = [])
     {
         try {
-            return $this->connection->call($method, $params);
+            return $this->_connection->call($method, $params);
         } catch (RuntimeException $error) {
             throw new ConnectionException('Unable to connect to supervisor XML RPC server.');
         } catch (HttpException $error) {
