@@ -30,11 +30,9 @@ class Module extends \yii\base\Module
     {
         parent::init();
 
-        Event::on(Supervisor::class, Supervisor::EVENT_CONFIG_CHANGED,
-            function () {
-                exec('supervisorctl update', $output, $status);
-            }
-        );
+        Event::on(Supervisor::class, Supervisor::EVENT_CONFIG_CHANGED, function () {
+            exec('supervisorctl update', $output, $status);
+        });
 
         \Yii::configure($this, require(__DIR__ . '/config/supervisor.php'));
         \Yii::setAlias('@infinitiwebSupervisorManager', sprintf("%s", __DIR__));
@@ -50,18 +48,10 @@ class Module extends \yii\base\Module
      */
     protected function registerIoC(): void
     {
-        \Yii::$container->set(
-            Client::class,
-            function () {
-                return new Client(
-                    $this->params['supervisorConnection']['url']
-                );
-            }
-        );
+        \Yii::$container->set(Client::class, function () {
+            return new Client($this->params['supervisorConnection']['url']);
+        });
 
-        \Yii::$container->set(
-            ConnectionInterface::class,
-            $this->params['supervisorConnection']
-        );
+        \Yii::$container->set(ConnectionInterface::class, $this->params['supervisorConnection']);
     }
 }

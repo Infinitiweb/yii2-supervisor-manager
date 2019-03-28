@@ -12,7 +12,7 @@ return [
             'url' => 'http://127.0.0.1:9001/RPC2'
         ],
         'supervisorConfiguration' => [
-            'configDir' => \Yii::getAlias('@common/config/supervisor'),
+            'configDir' => \Yii::getAlias('@app/config/supervisor'),
         ],
     ],
 ];

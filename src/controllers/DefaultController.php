@@ -125,15 +125,11 @@ class DefaultController extends Controller
     {
         $model = new SupervisorGroupForm;
 
-        $request = \Yii::$app->request;
-
-        if ($model->load($request->post())) {
+        if ($model->load(\Yii::$app->request->post())) {
             $model->saveGroup();
         }
 
-        Event::trigger(
-            Supervisor::class, Supervisor::EVENT_CONFIG_CHANGED
-        );
+        Event::trigger(Supervisor::class, Supervisor::EVENT_CONFIG_CHANGED);
 
         return $this->redirect(Url::to('/supervisor/default/index'));
     }
@@ -144,10 +140,7 @@ class DefaultController extends Controller
     public function actionRestoreFromBackup(): Response
     {
         (new ConfigFileHandler())->restoreFromBackup();
-
-        Event::trigger(
-            Supervisor::class, Supervisor::EVENT_CONFIG_CHANGED
-        );
+        Event::trigger(Supervisor::class, Supervisor::EVENT_CONFIG_CHANGED);
 
         return $this->redirect(Url::to('/supervisor/default/index'));
     }
@@ -216,9 +209,7 @@ class DefaultController extends Controller
         $response = ['isSuccessful' => true];
 
         try {
-            $group = $this->getSupervisorGroup(
-                $request->post('groupName')
-            );
+            $group = $this->getSupervisorGroup($request->post('groupName'));
 
             if ($group->hasMethod($actionType)) {
                 $group->$actionType();
@@ -244,9 +235,7 @@ class DefaultController extends Controller
         $response = ['isSuccessful' => true];
 
         try {
-            $group = new ProcessConfig(
-                $request->post('groupName')
-            );
+            $group = new ProcessConfig($request->post('groupName'));
 
             if ($group->hasMethod($actionType)) {
                 $group->$actionType();
