@@ -1,6 +1,7 @@
 <?php
 
 use infinitiweb\supervisorManager\assets\base\BaseAsset;
+use yii\widgets\Pjax;
 
 /**
  * @var $this yii\web\View
@@ -13,18 +14,12 @@ BaseAsset::register($this);
 $this->title = 'Supervisor';
 $this->params['breadcrumbs'][] = $this->title;
 
-echo $this->render('parts/_modal', ['supervisorGroupForm' => $supervisorGroupForm]);
+echo $this->render('parts/_modal');
 echo $this->render('parts/_create-group', ['supervisorGroupForm' => $supervisorGroupForm]);
 ?>
 
-<style>
-    .container {
-        width: 100%;
-    }
-</style>
-
 <div class="supervisor-index">
-    <?php \yii\widgets\Pjax::begin(['id' => 'supervisor', 'timeout' => 5000]); ?>
-    <?php echo $this->render('parts/_grid', ['dataProvider' => $dataProvider]); ?>
-    <?php \yii\widgets\Pjax::end(); ?>
+    <?php Pjax::begin(['id' => 'supervisor', 'timeout' => 5000]); ?>
+    <?= $this->render('parts/_grid', ['dataProvider' => $dataProvider]); ?>
+    <?php Pjax::end(); ?>
 </div>

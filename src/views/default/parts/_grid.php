@@ -17,11 +17,11 @@ echo GridView::widget([
     'layout' => '{items}{pager}',
     'columns' => [
         [
-            'label' => 'Group Name',
+            'label' => Yii::t('common', 'Group Name'),
             'value' => 'group',
         ],
         [
-            'label' => 'Group Control',
+            'label' => Yii::t('common', 'Group Control'),
             'format' => 'raw',
             'contentOptions' => ['class' => 'groupOptions'],
             'value' => function ($model) {
@@ -29,7 +29,7 @@ echo GridView::widget([
             }
         ],
         [
-            'label' => 'Group Process List',
+            'label' => Yii::t('common', 'Group Process List'),
             'format' => 'raw',
             'contentOptions' => ['class' => 'processList'],
             'value' => function ($model) {
@@ -39,12 +39,12 @@ echo GridView::widget([
                         'layout' => '{items}{pager}',
                         'columns' => [
                             [
-                                'label' => 'Process Name',
+                                'label' => Yii::t('common', 'Process Name'),
                                 'value' => 'name',
                                 'options' => ['width' => '13%'],
                             ],
                             [
-                                'label' => 'Up Time',
+                                'label' => Yii::t('common', 'Up Time'),
                                 'format' => 'raw',
                                 'options' => ['width' => '7%'],
                                 'value' => function ($model) {
@@ -71,14 +71,14 @@ echo GridView::widget([
                                 }
                             ],
                             [
-                                'label' => 'Last stop',
+                                'label' => Yii::t('common', 'Last stop'),
                                 'options' => ['width' => '11%'],
                                 'value' => function ($model) {
                                     return $model['stop'] ? date('Y-m-d H:i:s', $model['stop']) : "Wasn't stopped";
                                 }
                             ],
                             [
-                                'label' => 'Status',
+                                'label' => Yii::t('common', 'Status'),
                                 'format' => 'html',
                                 'contentOptions' => ['align' => 'center'],
                                 'options' => ['width' => '7%'],
@@ -100,20 +100,20 @@ echo GridView::widget([
                                 }
                             ],
                             [
-                                'label' => 'Process ID',
+                                'label' => Yii::t('common', 'Process ID'),
                                 'contentOptions' => ['align' => 'center'],
                                 'options' => ['width' => '7%'],
                                 'value' => 'pid'
                             ],
                             [
-                                'label' => 'Started',
+                                'label' => Yii::t('common', 'Started'),
                                 'options' => ['width' => '13%'],
                                 'value' => function ($model) {
                                     return $model['start'] ? date('Y-m-d H:i:s', $model['start']) : "Wasn't started";
                                 }
                             ],
                             [
-                                'label' => 'Priority',
+                                'label' => Yii::t('common', 'Priority'),
                                 'format' => 'raw',
 //                                    'options' => ['width' => '10%'],
                                 'value' => function ($model) {
@@ -121,7 +121,7 @@ echo GridView::widget([
                                 }
                             ],
                             [
-                                'label' => 'Output',
+                                'label' => Yii::t('common', 'Output'),
                                 'format' => 'raw',
                                 'contentOptions' => ['align' => 'center'],
                                 'value' => function ($model) {
@@ -136,7 +136,7 @@ echo GridView::widget([
                                 }
                             ],
                             [
-                                'label' => 'Error Log',
+                                'label' => Yii::t('common', 'Error Log'),
                                 'format' => 'raw',
                                 'contentOptions' => ['align' => 'center'],
                                 'value' => function ($model) {
@@ -151,7 +151,7 @@ echo GridView::widget([
                                 }
                             ],
                             [
-                                'label' => 'Process Control',
+                                'label' => Yii::t('common', 'Process Control'),
                                 'contentOptions' => ['align' => 'center'],
                                 'format' => 'raw',
 //                                    'options' => ['width' => '5%'],
