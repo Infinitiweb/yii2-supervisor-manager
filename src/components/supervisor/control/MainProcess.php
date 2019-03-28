@@ -16,7 +16,7 @@ class MainProcess extends Supervisor
      */
     public function getAPIVersion()
     {
-        return $this->connection->callMethod('supervisor.getAPIVersion');
+        return $this->_connection->callMethod('supervisor.getAPIVersion');
     }
 
     /**
@@ -24,7 +24,7 @@ class MainProcess extends Supervisor
      */
     public function getState()
     {
-        return $this->connection->callMethod('supervisor.getState');
+        return $this->_connection->callMethod('supervisor.getState');
     }
 
     /**
@@ -32,7 +32,7 @@ class MainProcess extends Supervisor
      */
     public function getProcessId()
     {
-        return $this->connection->callMethod('supervisor.getPID');
+        return $this->_connection->callMethod('supervisor.getPID');
     }
 
     /**
@@ -40,7 +40,7 @@ class MainProcess extends Supervisor
      */
     public function restart()
     {
-        return $this->connection->callMethod('supervisor.restart');
+        return $this->_connection->callMethod('supervisor.restart');
     }
 
     /**
@@ -48,7 +48,7 @@ class MainProcess extends Supervisor
      */
     public function shutdown()
     {
-        return $this->connection->callMethod('supervisor.shutdown');
+        return $this->_connection->callMethod('supervisor.shutdown');
     }
 
     /**
@@ -56,7 +56,7 @@ class MainProcess extends Supervisor
      */
     public function getAllProcessInfo()
     {
-        return $this->connection->callMethod('supervisor.getAllProcessInfo');
+        return $this->_connection->callMethod('supervisor.getAllProcessInfo');
     }
 
     /**
@@ -90,7 +90,7 @@ class MainProcess extends Supervisor
      */
     public function start()
     {
-        return $this->connection->callMethod('supervisor.startAllProcesses');
+        return $this->_connection->callMethod('supervisor.startAllProcesses');
     }
 
     /**
@@ -98,7 +98,7 @@ class MainProcess extends Supervisor
      */
     public function stop()
     {
-        return $this->connection->callMethod('supervisor.stopAllProcesses');
+        return $this->_connection->callMethod('supervisor.stopAllProcesses');
     }
 
     /**

@@ -16,7 +16,7 @@ class Supervisor extends Component
     /**
      * @var ConnectionInterface
      */
-    public $connection;
+    public $_connection;
 
     /**
      * Supervisor constructor.
@@ -26,7 +26,7 @@ class Supervisor extends Component
      */
     public function __construct(ConnectionInterface $connection, array $config = [])
     {
-        $this->connection = $connection;
+        $this->_connection = $connection;
 
         parent::__construct($config);
     }

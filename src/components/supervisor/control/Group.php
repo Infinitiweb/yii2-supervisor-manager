@@ -34,7 +34,7 @@ class Group extends Supervisor
      */
     public function startProcessGroup()
     {
-        return $this->connection->callMethod('supervisor.startProcessGroup', [$this->groupName]);
+        return $this->_connection->callMethod('supervisor.startProcessGroup', [$this->groupName]);
     }
 
     /**
@@ -42,6 +42,6 @@ class Group extends Supervisor
      */
     public function stopProcessGroup()
     {
-        return $this->connection->callMethod('supervisor.stopProcessGroup', [$this->groupName]);
+        return $this->_connection->callMethod('supervisor.stopProcessGroup', [$this->groupName]);
     }
 }

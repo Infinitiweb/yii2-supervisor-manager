@@ -35,7 +35,7 @@ class Process extends Supervisor
      */
     public function stopProcess()
     {
-        return $this->connection->callMethod('supervisor.stopProcess', [$this->processName]);
+        return $this->_connection->callMethod('supervisor.stopProcess', [$this->processName]);
     }
 
     /**
@@ -43,7 +43,7 @@ class Process extends Supervisor
      */
     public function startProcess()
     {
-        return $this->connection->callMethod('supervisor.startProcess', [$this->processName]);
+        return $this->_connection->callMethod('supervisor.startProcess', [$this->processName]);
     }
 
     /**
@@ -51,7 +51,7 @@ class Process extends Supervisor
      */
     public function getProcessInfo()
     {
-        return $this->connection->callMethod('supervisor.getProcessInfo', [$this->processName]);
+        return $this->_connection->callMethod('supervisor.getProcessInfo', [$this->processName]);
     }
 
     /**
