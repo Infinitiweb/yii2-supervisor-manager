@@ -2,7 +2,11 @@
 
 namespace infinitiweb\supervisorManager\widgets\supervisor;
 
+use infinitiweb\supervisorManager\components\supervisor\control\MainProcess;
+use infinitiweb\supervisorManager\components\supervisor\exceptions\ConnectionException;
+use supervisormanager\models\SupervisorGroupForm;
 use yii\base\Widget;
+use yii\data\ArrayDataProvider;
 
 /**
  * Class SupervisorManagerWidget
@@ -11,15 +15,64 @@ use yii\base\Widget;
  */
 class SupervisorManagerWidget extends Widget
 {
+    /** @var string */
+    private const VIEWS_DIR = '@infinitiwebSupervisorManager/views/common';
+
     /**
      * @inheritdoc
-     * @throws \yii\base\InvalidRouteException
-     * @throws \yii\console\Exception
+     * @return string
+     * @throws \yii\base\InvalidConfigException
+     * @throws \Exception
      */
     public function run()
     {
-        return $this->render('default', [
-            'supervisorHtml' => \Yii::$app->runAction('supervisor/default/index'),
+        try {
+            $supervisor = $this->getSupervisorMainProcess();
+        } catch (ConnectionException $error) {
+            return $this->renderErrorHandle($error);
+        }
+
+        $groups = $supervisor->getAllProcessesByGroup();
+
+        foreach ($groups as $groupName => &$group) {
+            $group['group'] = $groupName;
+            $group['processList'] = new ArrayDataProvider([
+                'allModels' => $group['processList'],
+                'pagination' => [
+                    'pageSize' => 5,
+                    'pageParam' => $groupName,
+                ],
+            ]);
+        }
+
+        $supervisorGroupForm = new SupervisorGroupForm();
+        $dataProvider = new ArrayDataProvider([
+            'models' => $groups,
+            'totalCount' => count($groups),
         ]);
+
+        return $this->render(sprintf("%s/%s", self::VIEWS_DIR, 'index'), [
+            'supervisorGroupForm' => $supervisorGroupForm,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    /**
+     * @return MainProcess|object
+     * @throws \yii\base\InvalidConfigException
+     */
+    private function getSupervisorMainProcess(): MainProcess
+    {
+        return \Yii::$container->get(MainProcess::class);
+    }
+
+    /**
+     * @param \Exception $error
+     *
+     * @return string
+     */
+    private function renderErrorHandle(\Exception $error): string
+    {
+        return $this->render(sprintf("%s/%s", self::VIEWS_DIR, 'error'), ['message' => $error->getMessage()]);
     }
 }

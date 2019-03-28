@@ -27,6 +27,9 @@ use yii\web\Response;
  */
 class DefaultController extends Controller
 {
+    /** @var string */
+    private const VIEWS_DIR = '@infinitiwebSupervisorManager/views/common';
+
     /**
      * @inheritdoc
      */
@@ -69,6 +72,7 @@ class DefaultController extends Controller
     /**
      * @return string
      * @throws \yii\base\InvalidConfigException
+     * @throws \Exception
      */
     public function actionIndex(): string
     {
@@ -97,7 +101,7 @@ class DefaultController extends Controller
             'totalCount' => count($groups),
         ]);
 
-        return $this->renderProcess('index', [
+        return $this->renderProcess(sprintf("%s/%s", self::VIEWS_DIR, 'index'), [
             'supervisorGroupForm' => $supervisorGroupForm,
             'dataProvider' => $dataProvider,
         ]);
@@ -315,7 +319,7 @@ class DefaultController extends Controller
      */
     private function renderErrorHandle(\Exception $error): string
     {
-        return $this->render('error', ['message' => $error->getMessage()]);
+        return $this->render(sprintf("%s/%s", self::VIEWS_DIR, 'error'), ['message' => $error->getMessage()]);
     }
 
     /**
