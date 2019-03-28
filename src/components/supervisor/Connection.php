@@ -6,10 +6,10 @@ use infinitiweb\supervisorManager\components\supervisor\exceptions\Authenticatio
 use infinitiweb\supervisorManager\components\supervisor\exceptions\ConnectionException;
 use infinitiweb\supervisorManager\components\supervisor\exceptions\SupervisorException;
 use yii\base\Component;
-use Zend\XmlRpc\Client as XmlRpcClient;
-use Zend\XmlRpc\Client\Exception\HttpException;
-use Zend\XmlRpc\Client\Exception\FaultException;
 use Zend\Http\Client\Adapter\Exception\RuntimeException;
+use Zend\XmlRpc\Client as XmlRpcClient;
+use Zend\XmlRpc\Client\Exception\FaultException;
+use Zend\XmlRpc\Client\Exception\HttpException;
 
 /**
  * Class Connection
@@ -26,7 +26,7 @@ class Connection extends Component implements ConnectionInterface
     public $password;
 
     /** @var XmlRpcClient */
-    private $_connection;
+    private $connection;
 
     /**
      * Connection constructor.
@@ -41,20 +41,18 @@ class Connection extends Component implements ConnectionInterface
     {
         parent::__construct($config);
 
-        $this->_connection = $client;
+        $this->connection = $client;
 
-        $this->_initConnection();
+        $this->initConnection();
         $this->checkConnection();
     }
 
     /**
      * @return \Zend\Http\Client|XmlRpcClient
      */
-    private function _initConnection()
+    private function initConnection()
     {
-        return $this->_connection->getHttpClient()->setAuth(
-            $this->user, $this->password
-        );
+        return $this->connection->getHttpClient()->setAuth($this->user, $this->password);
     }
 
     /**
@@ -62,7 +60,7 @@ class Connection extends Component implements ConnectionInterface
      */
     public function getConnection()
     {
-        return $this->_connection;
+        return $this->connection;
     }
 
     /**
@@ -77,23 +75,14 @@ class Connection extends Component implements ConnectionInterface
     public function callMethod($method, array $params = [])
     {
         try {
-            return $this->_connection->call($method, $params);
+            return $this->connection->call($method, $params);
         } catch (RuntimeException $error) {
-            throw new ConnectionException(
-                'Unable to connect to supervisor XML RPC server.'
-            );
+            throw new ConnectionException('Unable to connect to supervisor XML RPC server.');
         } catch (HttpException $error) {
-            throw new AuthenticationException(
-                'Authentication failed. Check user name and password.'
-            );
+            throw new AuthenticationException('Authentication failed. Check user name and password.');
         } catch (FaultException $error) {
-
-            $methodName = isset($error->getTrace()[0]['args'][0])
-                ? $error->getTrace()[0]['args'][0] : 'Unknown';
-
-            throw new SupervisorException(
-                'Method: ' . $methodName . ' was not found in supervisor RPC API.'
-            );
+            $methodName = isset($error->getTrace()[0]['args'][0]) ? $error->getTrace()[0]['args'][0] : 'Unknown';
+            throw new SupervisorException("Method: {$methodName} was not found in supervisor RPC API.");
         }
     }
 

@@ -12,10 +12,8 @@ use infinitiweb\supervisorManager\components\supervisor\Supervisor;
  */
 class Group extends Supervisor
 {
-    /**
-     * @var string
-     */
-    private $_groupName;
+    /** @var string */
+    private $groupName;
 
     /**
      * Group constructor.
@@ -24,9 +22,9 @@ class Group extends Supervisor
      * @param ConnectionInterface $connection
      * @param array $config
      */
-    public function __construct($groupName, ConnectionInterface $connection, $config = [])
+    public function __construct(string $groupName, ConnectionInterface $connection, $config = [])
     {
-        $this->_groupName = $groupName;
+        $this->groupName = $groupName;
 
         parent::__construct($connection, $config);
     }
@@ -36,9 +34,7 @@ class Group extends Supervisor
      */
     public function startProcessGroup()
     {
-        return $this->_connection->callMethod(
-            'supervisor.startProcessGroup', [$this->_groupName]
-        );
+        return $this->connection->callMethod('supervisor.startProcessGroup', [$this->groupName]);
     }
 
     /**
@@ -46,8 +42,6 @@ class Group extends Supervisor
      */
     public function stopProcessGroup()
     {
-        return $this->_connection->callMethod(
-            'supervisor.stopProcessGroup', [$this->_groupName]
-        );
+        return $this->connection->callMethod('supervisor.stopProcessGroup', [$this->groupName]);
     }
 }

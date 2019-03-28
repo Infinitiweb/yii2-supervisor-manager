@@ -12,118 +12,38 @@ use yii\base\Component;
  */
 class ProcessConfig extends Component
 {
-    /**
-     * @var ConfigFileHandler
-     */
-    private $_config;
-    /**
-     * The command that will be run when this program is started. Example of
-     * command value: "/path/to/program foo bar". The command line can use
-     * double quotes to group arguments with spaces in them to pass to the
-     * program, e.g. /path/to/program/name -p "foo bar".
-     *
-     * @var string
-     */
-    private $_command;
-    /**
-     * You don’t need this setting unless you change "numprocs" option.
-     * Default: %(program_name)s
-     *
-     * @var string
-     */
-    private $_process_name = '%(program_name)s_%(process_num)02d';
-    /**
-     * The number of process instances that will be launched.
-     * Default: 1
-     *
-     * @var int
-     */
-    private $_numprocs = 1;
-    /**
-     * An integer offset that is used to compute the number at which
-     * numberOfProcesses starts.
-     * Default: 0
-     *
-     * @var int
-     */
-    private $_numprocs_start = 0;
-    /**
-     * The relative priority of the program in the start and shutdown ordering.
-     * Lower priorities indicate programs that start first and shut down last.
-     * Default: 999
-     *
-     * @var int
-     */
-    private $_priority = 999;
-    /**
-     * If true, this program will start automatically when supervisor is started.
-     * Default: true
-     *
-     * @var bool
-     */
-    private $_autostart = true;
-    /**
-     * The number of serial failure attempts that supervisor will allow when
-     * attempting to start the program before giving up and putting the process
-     * into an FATAL state.
-     * Default: 3
-     *
-     * @var int
-     */
-    private $_startretries = 3;
-    /**
-     * Specifies if supervisor should automatically restart a process if it
-     * exits when it is in the RUNNING state.
-     * Available values: [false, unexpected, true].
-     * Default: unexpected
-     *
-     * @var string
-     */
-    private $_autorestart = 'unexpected';
-    /**
-     * The list of “expected” exit codes for this program used with autoRestart.
-     * Default: 0,2
-     *
-     * @var string
-     */
-    private $_exitcodes = '0,2';
-    /**
-     * The signal used to kill the program when a stop is requested.
-     * Available values [TERM, HUP, INT, QUIT, KILL, USR1, USR2].
-     * Default: TERM
-     *
-     * @var string
-     */
-    private $_stopsignal = 'TERM';
-    /**
-     * The number of seconds to wait for the OS to return a SIGCHILD to
-     * supervisor after the program has been sent a stopsignal.
-     * Default: 10
-     *
-     * @var int
-     */
-    private $_stopwaitsecs = 10;
-    /**
-     * The total number of seconds which the program needs to stay running after
-     * a startup to consider the start successful. Set to 0 to indicate that the
-     * program needn’t stay running for any particular amount of time.
-     * Default: 1
-     *
-     * @var int
-     */
-    private $_startsecs = 1;
-    /**
-     * @var string
-     */
-    private $_programName;
-    /**
-     * @var string
-     */
-    private $_state = 'update';
-    /**
-     * @var array
-     */
-    private $_allowedConfigOptions = [
+    /** @var ConfigFileHandler */
+    private $config;
+    /** @var string */
+    private $command;
+    /** @var string */
+    private $processName = '%(program_name)s_%(process_num)02d';
+    /** @var int */
+    private $numprocs = 1;
+    /** @var int */
+    private $numprocsStart = 0;
+    /** @var int */
+    private $priority = 999;
+    /** @var bool */
+    private $autostart = true;
+    /** @var int */
+    private $startretries = 3;
+    /** @var string */
+    private $autorestart = 'unexpected';
+    /** @var string */
+    private $exitcodes = '0,2';
+    /** @var string */
+    private $stopsignal = 'TERM';
+    /** @var int */
+    private $stopwaitsecs = 10;
+    /** @var int */
+    private $startsecs = 1;
+    /** @var string */
+    private $programName;
+    /** @var string */
+    private $state = 'update';
+    /** @var array */
+    private $allowedConfigOptions = [
         'command',
         'process_name',
         'numprocs',
@@ -148,8 +68,8 @@ class ProcessConfig extends Component
      */
     public function __construct($programName, $config = [])
     {
-        $this->_programName = $programName;
-        $this->_config = new ConfigFileHandler($this->_programName);
+        $this->programName = $programName;
+        $this->config = new ConfigFileHandler($this->programName);
 
         $this->prepareProcessConfig();
 
@@ -161,82 +81,67 @@ class ProcessConfig extends Component
      */
     public function setConfigHandler(ConfigFileHandler $configFileHandler)
     {
-        $this->_config = $configFileHandler;
+        $this->config = $configFileHandler;
     }
 
     /**
-     * Sets the property values obtained from a configuration file.
-     *
+     * @return void
      */
     public function prepareProcessConfig()
     {
-        $processConfigData = $this->_config->getProcessConfig(
-            $this->_programName
-        );
+        $processConfigData = $this->config->getProcessConfig($this->programName);
 
         if (!$processConfigData) {
-            $this->_state = 'create';
+            $this->state = 'create';
+        } else {
+            $configInArray = preg_split('/\n/', $processConfigData);
 
-            return;
-        }
+            foreach ($configInArray as $configParam) {
+                list($optionName, $optionValue) = explode('=', $configParam);
 
-        $configInArray = preg_split('/\n/', $processConfigData);
+                $optionName = trim($optionName);
+                $optionValue = trim($optionValue);
 
-        foreach ($configInArray as $configParam) {
-            list($optionName, $optionValue) = explode('=', $configParam);
-
-            $optionName = trim($optionName);
-            $optionValue = trim($optionValue);
-
-            if ($this->hasProperty($optionName)) {
-                $this->$optionName = $optionValue;
+                if ($this->hasProperty($optionName)) {
+                    $this->$optionName = $optionValue;
+                }
             }
         }
     }
 
     /**
-     * Delete specified process configurations.
-     *
-     * @param bool|false $backup
-     * @codeCoverageIgnore
-     *
+     * @param bool $backup
      * @return bool
      */
-    public function deleteProcess($backup = false): bool
+    public function deleteProcess(bool $backup = false): bool
     {
-        return $this->_config->deleteGroup($backup);
+        return $this->config->deleteGroup($backup);
     }
 
     /**
-     * Save configurations of current instance of class to config file via
-     * ConfigFileHandler object.
-     *
      * @return bool|int
      */
     public function saveProcessConfig()
     {
         $configInArray = [];
 
-        // Collect object properties to array
-        foreach ($this->_allowedConfigOptions as $optionName) {
+        foreach ($this->allowedConfigOptions as $optionName) {
             $configInArray[] = $optionName . '=' . $this->$optionName;
         }
 
         $configString = implode("\n", $configInArray);
 
-        // Save process config depends on state
-        if ($this->_state == 'create') {
-            return $this->_config->createConfig(
-                $this->_programName, $configString
+        if ($this->state == 'create') {
+            return $this->config->createConfig(
+                $this->programName, $configString
             );
         } else {
-            return $this->_config->saveConfig($configString);
+            return $this->config->saveConfig($configString);
         }
     }
 
     /**
      * @param array $processData
-     *
      * @return bool
      */
     public function createGroup(array $processData): bool
@@ -267,7 +172,7 @@ class ProcessConfig extends Component
     {
         $currentProcessNumber = $this->getNumprocs();
 
-        if ($currentProcessNumber == 1) {
+        if ($currentProcessNumber === 1) {
             return false;
         }
 
@@ -281,7 +186,7 @@ class ProcessConfig extends Component
      */
     public function getCommand()
     {
-        return $this->_command;
+        return $this->command;
     }
 
     /**
@@ -289,7 +194,7 @@ class ProcessConfig extends Component
      */
     public function setCommand($command)
     {
-        $this->_command = $command;
+        $this->command = $command;
     }
 
     /**
@@ -297,15 +202,15 @@ class ProcessConfig extends Component
      */
     public function getProcess_name(): string
     {
-        return $this->_process_name;
+        return $this->processName;
     }
 
     /**
-     * @param string $process_name
+     * @param string $processName
      */
-    public function setProcess_name($process_name)
+    public function setProcess_name(string $processName)
     {
-        $this->_process_name = $process_name;
+        $this->processName = $processName;
     }
 
     /**
@@ -313,15 +218,15 @@ class ProcessConfig extends Component
      */
     public function getNumprocs(): int
     {
-        return $this->_numprocs;
+        return $this->numprocs;
     }
 
     /**
      * @param int $numprocs
      */
-    public function setNumprocs($numprocs)
+    public function setNumprocs(int $numprocs)
     {
-        $this->_numprocs = $numprocs;
+        $this->numprocs = $numprocs;
     }
 
     /**
@@ -329,15 +234,15 @@ class ProcessConfig extends Component
      */
     public function getNumprocs_start(): int
     {
-        return $this->_numprocs_start;
+        return $this->numprocsStart;
     }
 
     /**
-     * @param int $numprocs_start
+     * @param int $numprocsStart
      */
-    public function setNumprocs_start($numprocs_start)
+    public function setNumprocs_start(int $numprocsStart)
     {
-        $this->_numprocs_start = $numprocs_start;
+        $this->numprocsStart = $numprocsStart;
     }
 
     /**
@@ -345,12 +250,11 @@ class ProcessConfig extends Component
      */
     public function getPriority(): int
     {
-        return $this->_priority;
+        return $this->priority;
     }
 
     /**
      * @param $priority
-     *
      * @throws ProcessConfigException
      */
     public function setPriority($priority)
@@ -359,7 +263,7 @@ class ProcessConfig extends Component
             throw new ProcessConfigException('Invalid process priority param.');
         }
 
-        $this->_priority = (int)$priority;
+        $this->priority = (int)$priority;
     }
 
     /**
@@ -367,15 +271,15 @@ class ProcessConfig extends Component
      */
     public function getAutostart(): bool
     {
-        return $this->_autostart;
+        return $this->autostart;
     }
 
     /**
-     * @param boolean $autostart
+     * @param boolean $autoStart
      */
-    public function setAutostart($autostart)
+    public function setAutostart($autoStart)
     {
-        $this->_autostart = (int)$autostart;
+        $this->autostart = (int)$autoStart;
     }
 
     /**
@@ -383,15 +287,15 @@ class ProcessConfig extends Component
      */
     public function getStartretries(): int
     {
-        return $this->_startretries;
+        return $this->startretries;
     }
 
     /**
-     * @param int $startretries
+     * @param int $startRetries
      */
-    public function setStartretries($startretries)
+    public function setStartretries(int $startRetries)
     {
-        $this->_startretries = $startretries;
+        $this->startretries = $startRetries;
     }
 
     /**
@@ -399,23 +303,21 @@ class ProcessConfig extends Component
      */
     public function getAutorestart(): string
     {
-        return $this->_autorestart;
+        return $this->autorestart;
     }
 
     /**
-     * @param $autoRestart
+     * @param string $autoRestart
      *
      * @throws ProcessConfigException
      */
-    public function setAutorestart($autoRestart)
+    public function setAutorestart(string $autoRestart)
     {
         if (!in_array($autoRestart, ['false', 'unexpected', 'true'])) {
-            throw new ProcessConfigException(
-                'Invalid process auto restart param.'
-            );
+            throw new ProcessConfigException('Invalid process auto restart param.');
         }
 
-        $this->_autorestart = $autoRestart;
+        $this->autorestart = $autoRestart;
     }
 
     /**
@@ -423,15 +325,15 @@ class ProcessConfig extends Component
      */
     public function getExitcodes(): string
     {
-        return $this->_exitcodes;
+        return $this->exitcodes;
     }
 
     /**
-     * @param string $exitcodes
+     * @param string $exitCodes
      */
-    public function setExitcodes($exitcodes)
+    public function setExitcodes(string $exitCodes)
     {
-        $this->_exitcodes = $exitcodes;
+        $this->exitcodes = $exitCodes;
     }
 
     /**
@@ -439,26 +341,21 @@ class ProcessConfig extends Component
      */
     public function getStopsignal(): string
     {
-        return $this->_stopsignal;
+        return $this->stopsignal;
     }
 
     /**
-     * @param string $stopsignal
+     * @param string $stopSignal
      *
      * @throws ProcessConfigException
      */
-    public function setStopsignal($stopsignal)
+    public function setStopsignal(string $stopSignal)
     {
-        if (
-        !in_array(
-            $stopsignal,
-            ['TERM', 'HUP', 'INT', 'QUIT', 'KILL', 'USR1', 'USR2']
-        )
-        ) {
+        if (!in_array($stopSignal, ['TERM', 'HUP', 'INT', 'QUIT', 'KILL', 'USR1', 'USR2'])) {
             throw new ProcessConfigException('Invalid stop signal value.');
         }
 
-        $this->_stopsignal = $stopsignal;
+        $this->stopsignal = $stopSignal;
     }
 
     /**
@@ -466,31 +363,31 @@ class ProcessConfig extends Component
      */
     public function getStopwaitsecs(): int
     {
-        return $this->_stopwaitsecs;
+        return $this->stopwaitsecs;
     }
 
     /**
-     * @param int $stopwaitsecs
+     * @param int $stopWaitSecs
      */
-    public function setStopwaitsecs($stopwaitsecs)
+    public function setStopwaitsecs(int $stopWaitSecs)
     {
-        $this->_stopwaitsecs = $stopwaitsecs;
+        $this->stopwaitsecs = $stopWaitSecs;
     }
 
     /**
      * @return int
      */
-    public function getStartsecs()
+    public function getStartsecs(): int
     {
-        return $this->_startsecs;
+        return $this->startsecs;
     }
 
     /**
-     * @param int $startsecs
+     * @param int $startSecs
      */
-    public function setStartsecs($startsecs)
+    public function setStartsecs(int $startSecs)
     {
-        $this->_startsecs = $startsecs;
+        $this->startsecs = $startSecs;
     }
 
     /**
@@ -498,6 +395,6 @@ class ProcessConfig extends Component
      */
     public function getState(): string
     {
-        return $this->_state;
+        return $this->state;
     }
 }

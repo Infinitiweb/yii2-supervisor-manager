@@ -15,13 +15,13 @@ class ConfigFileHandler extends Component
     const DS = DIRECTORY_SEPARATOR;
 
     /** @var string Path to supervisor configuration dir */
-    private $_configDir;
+    private $configDir;
     /** @var string Current group name working with */
-    private $_processName;
+    private $processName;
     /** @var string Path to process configuration file */
-    private $_configPath;
+    private $configPath;
     /** @var string Source string with supervisor configuration for specified group. */
-    private $_configSource;
+    private $configSource;
 
     /**
      * ConfigFileHandler constructor.
@@ -32,63 +32,16 @@ class ConfigFileHandler extends Component
      */
     public function __construct($processName = null, $configDir = null, $config = [])
     {
-        $this->_processName = $processName;
+        $this->processName = $processName;
 
-        $this->_setConfigDir($configDir);
-        $this->_checkConfigDir();
+        $this->setConfigDir($configDir);
+        $this->checkConfigDir();
 
         parent::__construct($config);
     }
 
     /**
-     * Check supervisor configurations folder for existing and creates if it's
-     * not.
-     *
-     * @return bool
-     */
-    private function _checkConfigDir(): bool
-    {
-        if (!is_dir($this->_configDir)) {
-            return mkdir($this->_configDir, 777);
-        }
-
-        return true;
-    }
-
-    /**
-     * @param string $configDir
-     */
-    private function _setConfigDir(string $configDir): void
-    {
-        if (!$configDir) {
-            $this->_configDir = \Yii::getAlias('@common') . '/config/supervisor';
-
-            return;
-        }
-
-        $this->_configDir = $configDir;
-    }
-
-    /**
-     * Get a list of paths to all configuration files of supervisor.
-     *
-     * @return array
-     */
-    private function _getConfigFilesPaths(): array
-    {
-        $filesFilterCallback = function ($item) {
-            return !is_dir($this->_configDir . self::DS . $item)
-                && !strpos($item, '.zip');
-        };
-
-        return array_filter(scandir($this->_configDir), $filesFilterCallback);
-    }
-
-    /**
-     * Create backup of existing supervisor processes configuration files.
-     *
-     * @param string $backupName
-     *
+     * @param null $backupName
      * @return bool
      */
     public function backupConfig($backupName = null): bool
@@ -96,31 +49,23 @@ class ConfigFileHandler extends Component
         $zip = new \ZipArchive();
 
         $archiveName = $backupName ?: self::BACKUP_FILE_NAME;
-        $archivePath = $this->_configDir . self::DS . $archiveName;
+        $archivePath = sprintf("%s%s%s", $this->configDir, self::DS, $archiveName);
 
-        // Create an archive
         if (!$zip->open($archivePath, \ZipArchive::CREATE)) {
             return false;
         }
 
-        // Add files to archive
-        $filesList = $this->_getConfigFilesPaths();
+        $filesList = $this->getConfigFilesPaths();
 
         foreach ($filesList as $filePath) {
-            $zip->addFile(
-                $this->_configDir . self::DS . $filePath, $filePath
-            );
+            $zip->addFile(sprintf("%s%s%s", $this->configDir, self::DS, $filePath), $filePath);
         }
 
-        // Save archive
         return $zip->close();
     }
 
     /**
-     * Restore previous configuration from archive.
-     *
-     * @param string $backupName
-     *
+     * @param null $backupName
      * @return bool
      */
     public function restoreFromBackup($backupName = null): bool
@@ -128,78 +73,62 @@ class ConfigFileHandler extends Component
         $zip = new \ZipArchive;
 
         $archiveName = $backupName ?: self::BACKUP_FILE_NAME;
-        $archivePath = $this->_configDir . self::DS . $archiveName;
+        $archivePath = sprintf("%s%s%s", $this->configDir, self::DS, $archiveName);
 
         if (!$zip->open($archivePath)) {
             return false;
         }
 
-        $currentConfigFiles = $this->_getConfigFilesPaths();
+        $currentConfigFiles = $this->getConfigFilesPaths();
 
         foreach ($currentConfigFiles as $filePath) {
-
             if (!strpos($filePath, 'zip')) {
-                unlink($this->_configDir . self::DS . $filePath);
+                unlink(sprintf("%s%s%s", $this->configDir, self::DS, $filePath));
             }
         }
 
-        $zip->extractTo($this->_configDir);
+        $zip->extractTo($this->configDir);
 
         return $zip->close();
     }
 
     /**
-     * Update process configuration.
-     *
      * @param $processData
-     *
      * @return bool
      */
     public function saveConfig($processData): bool
     {
-        if (!$this->_processName) {
+        if (!$this->processName) {
             return false;
         }
 
-        // Replace existing config with new
         $replacementCallback = function ($matches) use ($processData) {
-            return $matches[1] . "\n" . $processData . "\n" . $matches[3];
+            return sprintf("%s\n%s\n%s", $matches[1], $processData, $matches[3]);
         };
 
-        $configString = preg_replace_callback(
-            '/(\[.*:' . $this->_processName . '\])([\s-\S]+?)(\Z|\[)/',
-            $replacementCallback,
-            $this->_configSource
-        );
+        $pattern = "/(\[.*:{$this->processName}\])([\s-\S]+?)(\Z|\[)/";
+        $configString = preg_replace_callback($pattern, $replacementCallback, $this->configSource);
 
-        return $this->_saveFileConfig($configString);
+        return $this->saveFileConfig($configString);
     }
 
     /**
-     * Save new process configuration to supervisor configuration file.
-     *
      * @param $groupName
      * @param $processData
-     *
-     * @return int
+     * @return bool|int
      */
     public function createConfig($groupName, $processData)
     {
         $this->backupConfig();
 
-        $processData = "[program:$groupName]" . "\n" . $processData;
-        $fileName = $groupName . '.conf';
+        $processData = "[program:$groupName]\n{$processData}";
+        $fileName = "{$groupName}.conf";
 
-        return file_put_contents(
-            $this->_configDir . DIRECTORY_SEPARATOR . $fileName, $processData
-        );
+        return file_put_contents(sprintf("%s%s%s", $this->configDir, self::DS, $fileName), $processData);
     }
 
     /**
-     * Delete supervisor group configuration.
-     *
      * @param bool $backup
-     *
      * @return bool
      */
     public function deleteGroup($backup = false): bool
@@ -208,75 +137,43 @@ class ConfigFileHandler extends Component
             $this->backupConfig();
         }
 
-        $configString = preg_replace_callback(
-            '/(\[.*:' . $this->_processName . '\])([\s-\S]+?)(\Z|\[)/',
-            function ($matches) {
-                return '' . $matches[3];
-            },
-            $this->_configSource
-        );
+        $pattern = "/(\[.*:{$this->processName}\])([\s-\S]+?)(\Z|\[)/";
+        $configString = preg_replace_callback($pattern, function ($matches) {
+            return '' . $matches[3];
+        }, $this->configSource);
 
-        return $this->_saveFileConfig($configString);
-    }
-
-    /**
-     * @param $configData
-     *
-     * @return bool
-     */
-    private function _saveFileConfig($configData): bool
-    {
-        if (!$this->_configPath) {
-            return false;
-        }
-
-        if (!$configData) {
-            unlink($this->_configPath);
-        } else {
-            file_put_contents($this->_configPath, $configData);
-        }
-
-        return true;
+        return $this->saveFileConfig($configString);
     }
 
     /**
      * @param null $processName
-     *
      * @return bool|string
      */
     public function getProcessConfig($processName = null)
     {
-        if (!$this->_processName) {
-            $this->_processName = $processName;
+        if (!$this->processName) {
+            $this->processName = $processName;
         }
 
-        if (!$this->_processName) {
+        if (!$this->processName) {
             return false;
         }
 
-        $filesList = $this->_getConfigFilesPaths();
+        $filesList = $this->getConfigFilesPaths();
 
-        // Search specified group config in each config file
         foreach ($filesList as $fileConfig) {
-
-            $configPath = $this->_configDir . '/' . $fileConfig;
-
+            $configPath = $this->configDir . '/' . $fileConfig;
             $configData = file_get_contents($configPath);
 
-            if (!strpos($configData, ":$this->_processName]")) {
+            if (!strpos($configData, ":$this->processName]")) {
                 continue;
             }
 
-            $this->_configPath = $configPath;
+            $this->configPath = $configPath;
+            $this->configSource = $configData;
 
-            $this->_configSource = $configData;
-
-            // Get existing process configuration
-            preg_match(
-                '/\[.*:' . $this->_processName . '\]([\s-\S]+?)(\Z|\[)/',
-                $configData,
-                $result
-            );
+            $pattern = "/\[.*:{$this->processName}\]([\s-\S]+?)(\Z|\[)/";
+            preg_match($pattern, $configData, $result);
 
             if (!isset($result[1])) {
                 return false;
@@ -288,5 +185,61 @@ class ConfigFileHandler extends Component
         return false;
     }
 
+    /**
+     * @return bool
+     */
+    private function checkConfigDir(): bool
+    {
+        if (!is_dir($this->configDir)) {
+            return mkdir($this->configDir, 777);
+        }
 
+        return true;
+    }
+
+    /**
+     * @param string $configDir
+     */
+    private function setConfigDir(string $configDir): void
+    {
+        if (!$configDir) {
+            $this->configDir = \Yii::$app->params['supervisorConfiguration']['configDir'];
+        } else {
+            $this->configDir = $configDir;
+        }
+    }
+
+    /**
+     * @return array
+     */
+    private function getConfigFilesPaths(): array
+    {
+        $filesFilterCallback = function ($item) {
+            $configFileIsDir = is_dir(sprintf("%s%s%s", $this->configDir, self::DS, $item));
+            $configFileIsZip = strpos($item, '.zip') !== false;
+
+            return !$configFileIsDir && !$configFileIsZip;
+        };
+
+        return array_filter(scandir($this->configDir), $filesFilterCallback);
+    }
+
+    /**
+     * @param $configData
+     * @return bool
+     */
+    private function saveFileConfig($configData): bool
+    {
+        if (!$this->configPath) {
+            return false;
+        }
+
+        if ($configData) {
+            file_put_contents($this->configPath, $configData);
+        } else {
+            unlink($this->configPath);
+        }
+
+        return true;
+    }
 }

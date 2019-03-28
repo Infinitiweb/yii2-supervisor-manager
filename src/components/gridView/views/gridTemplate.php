@@ -1,10 +1,14 @@
 <div class="box lteGridTemplate">
-    <?php if ($this->context->tableTitle):?>
+
+    <?php if ($this->context->tableTitle) : ?>
         <div class="box-header">
-            <h3 class="box-title"><?php echo $this->context->tableTitle;?></h3>
+            <h3 class="box-title">
+                <?= $this->context->tableTitle; ?>
+            </h3>
             <div class="box-tools pull-right"></div>
         </div>
     <?php endif;?>
+
     <!-- /.box-header -->
     <div class="box-body">
         <div class="dataTables_wrapper dt-bootstrap">
@@ -12,7 +16,9 @@
                 <div class="col-sm-6"></div>
                 <div class="col-sm-6"></div>
             </div>
-            <?php echo $this->context->beforeItems ?>
+
+            <?= $this->context->beforeItems; ?>
+
             <br>
             <div class="row">
                 <div class="col-sm-12">{items}</div>

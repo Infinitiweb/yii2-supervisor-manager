@@ -9,8 +9,8 @@
 ?>
 
 <div class="progress">
-    <div class="progress-bar progress-bar-<?= $progressBarClass; ?>"
+    <div class="progress-bar <?= sprintf("progress-bar-%s", $progressBarClass); ?>"
          role="progressbar" aria-valuenow="<?= $priority; ?>" aria-valuemin="0"
-         aria-valuemax="999" style="width: <?= $progressBarWidth ?>%"><span class="sr-only"></span>
+         aria-valuemax="999" style="<?= sprintf("width: %s%%", $progressBarWidth); ?>"><span class="sr-only"></span>
     </div>
 </div>

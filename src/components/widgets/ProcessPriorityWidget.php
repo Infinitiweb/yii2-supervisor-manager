@@ -29,22 +29,17 @@ class ProcessPriorityWidget extends Widget
      */
     public function run()
     {
-        parent::run();
-
-        return $this->render(
-            'priority',
-            [
-                'priority' => $this->priority,
-                'progressBarWidth' => $this->_getPriorityInPercent(),
-                'progressBarClass' => $this->_getProgressBarClass()
-            ]
-        );
+        return $this->render('priority', [
+            'priority' => $this->priority,
+            'progressBarWidth' => $this->getPriorityInPercent(),
+            'progressBarClass' => $this->getProgressBarClass()
+        ]);
     }
 
     /**
      * @return int
      */
-    private function _getPriorityInPercent(): int
+    private function getPriorityInPercent(): int
     {
         return $this->priority * (100 / $this->maxPriority);
     }
@@ -52,15 +47,15 @@ class ProcessPriorityWidget extends Widget
     /**
      * @return string
      */
-    private function _getProgressBarClass(): string
+    private function getProgressBarClass(): string
     {
-        $progressBarWidth = $this->_getPriorityInPercent();
-
+        $progressBarWidth = $this->getPriorityInPercent();
         $resultClass = '';
 
         foreach ($this->classesRange as $class => $range) {
             if ($progressBarWidth <= $range) {
-                $resultClass = $class; break;
+                $resultClass = $class;
+                break;
             }
         }
 

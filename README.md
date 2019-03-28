@@ -33,6 +33,9 @@ Add module of extension in app config:
                 'password' => 'supervisor_pass',
                 'url' => 'http://127.0.0.1:9001/RPC2',
             ],
+            'supervisorConfiguration' => [
+                'configDir' => \Yii::getAlias('@common/config/supervisor'),
+            ],
         ],
     ...
     ],

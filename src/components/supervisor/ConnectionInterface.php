@@ -16,7 +16,7 @@ interface ConnectionInterface
 
     /**
      * @param string $method
-     * @param array  $params
+     * @param array $params
      *
      * @return mixed
      */

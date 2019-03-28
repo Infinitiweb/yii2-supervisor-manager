@@ -12,13 +12,11 @@ use infinitiweb\supervisorManager\components\supervisor\Supervisor;
 class MainProcess extends Supervisor
 {
     /**
-     * Get version of current supervisor XML RPC API.
-     *
      * @return mixed
      */
     public function getAPIVersion()
     {
-        return $this->_connection->callMethod('supervisor.getAPIVersion');
+        return $this->connection->callMethod('supervisor.getAPIVersion');
     }
 
     /**
@@ -26,62 +24,51 @@ class MainProcess extends Supervisor
      */
     public function getState()
     {
-        return $this->_connection->callMethod('supervisor.getState');
+        return $this->connection->callMethod('supervisor.getState');
     }
 
     /**
-     * Get process id of main supervisor process.
-     *
      * @return mixed
      */
     public function getProcessId()
     {
-        return $this->_connection->callMethod('supervisor.getPID');
+        return $this->connection->callMethod('supervisor.getPID');
     }
 
     /**
-     * Restart all supervisors child processes.
-     *
      * @return mixed
      */
     public function restart()
     {
-        return $this->_connection->callMethod('supervisor.restart');
+        return $this->connection->callMethod('supervisor.restart');
     }
 
     /**
-     * Stop main supervisor process.
-     *
      * @return mixed
      */
     public function shutdown()
     {
-        return $this->_connection->callMethod('supervisor.shutdown');
+        return $this->connection->callMethod('supervisor.shutdown');
     }
 
     /**
-     * Get full info about all supervisors child processes.
-     *
      * @return mixed
      */
     public function getAllProcessInfo()
     {
-        return $this->_connection->callMethod('supervisor.getAllProcessInfo');
+        return $this->connection->callMethod('supervisor.getAllProcessInfo');
     }
 
     /**
-     * Sort all available processes by relative group.
-     *
      * @return array
+     * @throws \Exception
      */
     public function getAllProcessesByGroup(): array
     {
         $processList = $this->getAllProcessInfo();
-
         $groups = [];
 
         foreach ($processList as $process) {
-
             $groupName = $process['group'];
 
             if (!in_array($groupName, array_keys($groups))) {
@@ -99,37 +86,28 @@ class MainProcess extends Supervisor
     }
 
     /**
-     * Start all supervisors child processes.
-     *
      * @return mixed
      */
     public function start()
     {
-        return $this->_connection->callMethod('supervisor.startAllProcesses');
+        return $this->connection->callMethod('supervisor.startAllProcesses');
     }
 
     /**
-     * Stop all supervisor processes
-     *
      * @return mixed
      */
     public function stop()
     {
-        return $this->_connection->callMethod('supervisor.stopAllProcesses');
+        return $this->connection->callMethod('supervisor.stopAllProcesses');
     }
 
     /**
-     * Start main supervisor process from console.
-     *
      * @param int $delay
-     * @codeCoverageIgnore
-     *
      * @return bool
      */
     public static function forceStart($delay = 1000): bool
     {
         exec('supervisord -n  > /dev/null &');
-
         usleep($delay);
 
         return true;

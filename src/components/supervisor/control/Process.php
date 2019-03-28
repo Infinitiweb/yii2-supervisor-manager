@@ -2,10 +2,10 @@
 
 namespace infinitiweb\supervisorManager\components\supervisor\control;
 
-use supervisormanager\components\supervisor\config\ProcessConfig;
 use infinitiweb\supervisorManager\components\supervisor\ConnectionInterface;
 use infinitiweb\supervisorManager\components\supervisor\exceptions\ProcessException;
 use infinitiweb\supervisorManager\components\supervisor\Supervisor;
+use supervisormanager\components\supervisor\config\ProcessConfig;
 
 /**
  * Class Process
@@ -15,71 +15,54 @@ use infinitiweb\supervisorManager\components\supervisor\Supervisor;
 class Process extends Supervisor
 {
     /** @var string */
-    private $_processName;
+    private $processName;
 
     /**
      * Process constructor.
      *
-     * @param string $processName
+     * @param $processName
      * @param ConnectionInterface $connection
      */
     public function __construct($processName, ConnectionInterface $connection)
     {
-        $this->_processName = $processName;
+        $this->processName = $processName;
 
         parent::__construct($connection);
     }
 
     /**
-     * Stop single supervisor child process by passed passed name.
-     *
      * @return mixed
      */
     public function stopProcess()
     {
-        return $this->_connection->callMethod(
-            'supervisor.stopProcess', [$this->_processName]
-        );
+        return $this->connection->callMethod('supervisor.stopProcess', [$this->processName]);
     }
 
     /**
-     * Start single supervisor child process by passed passed name.
-     *
      * @return mixed
      */
     public function startProcess()
     {
-        return $this->_connection->callMethod(
-            'supervisor.startProcess', [$this->_processName]
-        );
+        return $this->connection->callMethod('supervisor.startProcess', [$this->processName]);
     }
 
     /**
-     * Get full info of single supervisor child process by passed passed name.
-     *
      * @return mixed
      */
     public function getProcessInfo()
     {
-        return $this->_connection->callMethod(
-            'supervisor.getProcessInfo', [$this->_processName]
-        );
+        return $this->connection->callMethod('supervisor.getProcessInfo', [$this->processName]);
     }
 
     /**
-     * Get standart log or errors output of supervisor child process.
-     *
      * @param $outputType
-     *
-     * @return string
+     * @return false|string
      * @throws ProcessException
      */
     public function getProcessOutput($outputType)
     {
         if (!in_array($outputType, ['stderr_logfile', 'stdout_logfile'])) {
-            throw new ProcessException(
-                'Specified incorrect type of process output.'
-            );
+            throw new ProcessException('Specified incorrect type of process output.');
         }
 
         return file_get_contents($this->getProcessInfo()[$outputType]);
@@ -88,8 +71,8 @@ class Process extends Supervisor
     /**
      * @param $processName
      * @return int
+     * @throws \Exception
      * @codeCoverageIgnore
-     *
      */
     public static function getProcessPriority($processName)
     {

@@ -9,7 +9,7 @@ use yii\widgets\Pjax;
 ?>
 
 <?php Pjax::begin([
-    'id' => 'supervisor-manager',
+    'id' => 'supervisor-manager-widget',
 ]); ?>
 <?= $supervisorHtml; ?>
 <?php Pjax::end(); ?>

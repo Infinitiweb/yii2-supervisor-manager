@@ -16,25 +16,23 @@ class Supervisor extends Component
     /**
      * @var ConnectionInterface
      */
-    public $_connection;
+    public $connection;
 
     /**
      * Supervisor constructor.
      *
      * @param ConnectionInterface $connection
-     * @param array               $config
+     * @param array $config
      */
     public function __construct(ConnectionInterface $connection, array $config = [])
     {
-        $this->_connection = $connection;
+        $this->connection = $connection;
 
         parent::__construct($config);
     }
 
     /**
-     * Update supervisor config file.
-     *
-     * @return int
+     * @return mixed
      */
     public function configChangedEvent()
     {

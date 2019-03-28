@@ -65,9 +65,12 @@ class AjaxAccess extends ActionFilter
     {
         if ($this->defaultUrl !== null) {
             $defUrl = (array)$this->defaultUrl;
-            if ($defUrl[0] !== Yii::$app->requestedRoute)
+
+            if ($defUrl[0] !== Yii::$app->requestedRoute) {
                 return Yii::$app->getResponse()->redirect($this->defaultUrl);
+            }
         }
+
         throw new ForbiddenHttpException('Only ajax!');
     }
 }

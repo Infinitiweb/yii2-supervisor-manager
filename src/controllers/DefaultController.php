@@ -92,7 +92,10 @@ class DefaultController extends Controller
         }
 
         $supervisorGroupForm = new SupervisorGroupForm();
-        $dataProvider = new ArrayDataProvider(['models' => $groups]);
+        $dataProvider = new ArrayDataProvider([
+            'models' => $groups,
+            'totalCount' => count($groups),
+        ]);
 
         return $this->renderProcess('index', [
             'supervisorGroupForm' => $supervisorGroupForm,
@@ -245,9 +248,7 @@ class DefaultController extends Controller
                 $group->$actionType();
             }
 
-            Event::trigger(
-                Supervisor::class, Supervisor::EVENT_CONFIG_CHANGED
-            );
+            Event::trigger(Supervisor::class, Supervisor::EVENT_CONFIG_CHANGED);
         } catch (SupervisorException $error) {
             $response = [
                 'isSuccessful' => false, 'error' => $error->getMessage()
@@ -269,9 +270,8 @@ class DefaultController extends Controller
         $response = ['isSuccessful' => false];
 
         try {
-            $processLog = $this->getSupervisorProcess(
-                $request->post('processName')
-            )->getProcessOutput($request->post('logType'));
+            $processLog = $this->getSupervisorProcess($request->post('processName'))
+                ->getProcessOutput($request->post('logType'));
 
             $response = [
                 'isSuccessful' => true,
@@ -290,11 +290,7 @@ class DefaultController extends Controller
      */
     public function actionCountGroupProcesses(): array
     {
-        $request = \Yii::$app->request;
-
-        $group = new ProcessConfig(
-            $request->post('groupName')
-        );
+        $group = new ProcessConfig(\Yii::$app->request->post('groupName'));
 
         return [
             'count' => $group->getNumprocs()
