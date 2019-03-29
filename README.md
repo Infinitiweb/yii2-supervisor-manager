@@ -7,7 +7,7 @@ The preferred way to install this extension is through [composer](http://getcomp
 Either run
 
 ```$xslt
-php composer.phar require --prefer-dist infinitiweb/yii2-supervisor-manager "*"
+php composer.phar require --prefer-dist infinitiweb/yii2-supervisor-manager "^1.1"
 ```
 
 or add
