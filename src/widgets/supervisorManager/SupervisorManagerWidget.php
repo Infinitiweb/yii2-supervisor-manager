@@ -2,10 +2,12 @@
 
 namespace infinitiweb\supervisorManager\widgets\supervisorManager;
 
+use Exception;
 use infinitiweb\supervisorManager\components\supervisor\control\MainProcess;
 use infinitiweb\supervisorManager\components\supervisor\exceptions\ConnectionException;
 use infinitiweb\supervisorManager\models\SupervisorGroupForm;
-use infinitiweb\supervisorManager\Module;
+use Yii;
+use yii\base\InvalidConfigException;
 use yii\base\Widget;
 use yii\data\ArrayDataProvider;
 
@@ -24,7 +26,7 @@ class SupervisorManagerWidget extends Widget
      */
     public function beforeRun()
     {
-        \Yii::$app->getModule('supervisor')->init();
+        Yii::$app->getModule('supervisorManager')->init();
 
         return parent::beforeRun();
     }
@@ -32,8 +34,8 @@ class SupervisorManagerWidget extends Widget
     /**
      * @inheritdoc
      * @return string
-     * @throws \yii\base\InvalidConfigException
-     * @throws \Exception
+     * @throws InvalidConfigException
+     * @throws Exception
      */
     public function run()
     {
@@ -70,19 +72,19 @@ class SupervisorManagerWidget extends Widget
 
     /**
      * @return MainProcess|object
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     private function getSupervisorMainProcess(): MainProcess
     {
-        return \Yii::$container->get(MainProcess::class);
+        return Yii::$container->get(MainProcess::class);
     }
 
     /**
-     * @param \Exception $error
+     * @param Exception $error
      *
      * @return string
      */
-    private function renderErrorHandle(\Exception $error): string
+    private function renderErrorHandle(Exception $error): string
     {
         return $this->render(sprintf("%s/%s", self::VIEWS_DIR, 'error'), ['message' => $error->getMessage()]);
     }

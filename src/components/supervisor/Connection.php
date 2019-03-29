@@ -81,8 +81,7 @@ class Connection extends Component implements ConnectionInterface
         } catch (HttpException $error) {
             throw new AuthenticationException('Authentication failed. Check user name and password.');
         } catch (FaultException $error) {
-            $methodName = isset($error->getTrace()[0]['args'][0]) ? $error->getTrace()[0]['args'][0] : 'Unknown';
-            throw new SupervisorException("Method: {$methodName} was not found in supervisor RPC API.");
+            throw new SupervisorException($error->getMessage());
         }
     }
 

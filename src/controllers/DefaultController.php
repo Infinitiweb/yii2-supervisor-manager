@@ -2,21 +2,21 @@
 
 namespace infinitiweb\supervisorManager\controllers;
 
+use Exception;
 use infinitiweb\supervisorManager\components\filters\AjaxAccess;
+use infinitiweb\supervisorManager\components\supervisor\config\ConfigFileHandler;
+use infinitiweb\supervisorManager\components\supervisor\config\ProcessConfig;
 use infinitiweb\supervisorManager\components\supervisor\control\Group;
 use infinitiweb\supervisorManager\components\supervisor\control\MainProcess;
 use infinitiweb\supervisorManager\components\supervisor\control\Process;
-use infinitiweb\supervisorManager\components\supervisor\exceptions\ConnectionException;
 use infinitiweb\supervisorManager\components\supervisor\exceptions\SupervisorException;
 use infinitiweb\supervisorManager\components\supervisor\Supervisor;
-use infinitiweb\supervisorManager\components\supervisor\config\ConfigFileHandler;
-use infinitiweb\supervisorManager\components\supervisor\config\ProcessConfig;
 use infinitiweb\supervisorManager\models\SupervisorGroupForm;
+use Yii;
 use yii\base\Event;
-use yii\data\ArrayDataProvider;
-use yii\filters\AccessControl;
+use yii\base\InvalidConfigException;
 use yii\filters\ContentNegotiator;
-use yii\helpers\Url;
+use yii\helpers\Json;
 use yii\web\Controller;
 use yii\web\Response;
 
@@ -27,136 +27,98 @@ use yii\web\Response;
  */
 class DefaultController extends Controller
 {
-    /** @var string */
-    private const VIEWS_DIR = '@infinitiweb/supervisorManager/views/common';
-
     /**
      * @inheritdoc
      */
     public function behaviors()
     {
         return [
-            'access' => \Yii::$app->params['supervisorConfiguration']['access'],
+            AjaxAccess::class,
+            'access' => Yii::$app->params['supervisorConfiguration']['access'],
             [
                 'class' => ContentNegotiator::class,
-                'except' => [
-                    'index',
-                    'restore-from-backup',
-                    'create-group',
-                    'start-supervisor'
-                ],
                 'formats' => [
                     'application/json' => Response::FORMAT_JSON,
                 ],
             ],
-            [
-                'class' => AjaxAccess::class,
-                'except' => [
-                    'index',
-                    'restore-from-backup',
-                    'create-group',
-                    'start-supervisor'
-                ],
-            ]
         ];
     }
 
     /**
-     * @return string
-     * @throws \yii\base\InvalidConfigException
-     * @throws \Exception
+     * @return array
      */
-    public function actionIndex(): string
+    public function actionIndex(): array
     {
-        try {
-            $supervisor = $this->getSupervisorMainProcess();
-        } catch (ConnectionException $error) {
-            return $this->renderErrorHandle($error);
-        }
-
-        $groups = $supervisor->getAllProcessesByGroup();
-
-        foreach ($groups as $groupName => &$group) {
-            $group['group'] = $groupName;
-            $group['processList'] = new ArrayDataProvider([
-                'allModels' => $group['processList'],
-                'pagination' => [
-                    'pageSize' => 5,
-                    'pageParam' => $groupName,
-                ],
-            ]);
-        }
-
-        $supervisorGroupForm = new SupervisorGroupForm();
-        $dataProvider = new ArrayDataProvider([
-            'models' => $groups,
-            'totalCount' => count($groups),
-        ]);
-
-        return $this->renderProcess(sprintf("%s/%s", self::VIEWS_DIR, 'index'), [
-            'supervisorGroupForm' => $supervisorGroupForm,
-            'dataProvider' => $dataProvider,
-        ]);
-    }
-
-    /**
-     * @return Response
-     */
-    public function actionStartSupervisor(): Response
-    {
-        MainProcess::forceStart(1500);
-
-        return $this->redirect(Url::to('/supervisor/default/index'));
-    }
-
-    /**
-     * @return Response
-     * @throws \Exception
-     */
-    public function actionCreateGroup(): Response
-    {
-        $model = new SupervisorGroupForm;
-
-        if ($model->load(\Yii::$app->request->post())) {
-            $model->saveGroup();
-        }
-
-        Event::trigger(Supervisor::class, Supervisor::EVENT_CONFIG_CHANGED);
-
-        return $this->redirect(Url::to('/supervisor/default/index'));
-    }
-
-    /**
-     * @return Response
-     */
-    public function actionRestoreFromBackup(): Response
-    {
-        (new ConfigFileHandler())->restoreFromBackup();
-        Event::trigger(Supervisor::class, Supervisor::EVENT_CONFIG_CHANGED);
-
-        return $this->redirect(Url::to('/supervisor/default/index'));
+        return ['success' => true];
     }
 
     /**
      * @return array
-     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionStartSupervisor(): array
+    {
+        MainProcess::forceStart(1500);
+
+        return ['success' => true];
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function actionCreateGroup(): array
+    {
+        $model = new SupervisorGroupForm;
+
+        if (!$model->load(Yii::$app->request->post()) || !$model->saveGroup()) {
+            return [
+                'success' => false,
+                'message' => Json::encode($model->getErrors())
+            ];
+        }
+
+        Event::trigger(Supervisor::class, Supervisor::EVENT_CONFIG_CHANGED);
+
+        return ['success' => true];
+    }
+
+    /**
+     * @return array
+     */
+    public function actionRestoreFromBackup(): array
+    {
+        (new ConfigFileHandler())->restoreFromBackup();
+        Event::trigger(Supervisor::class, Supervisor::EVENT_CONFIG_CHANGED);
+
+        return ['success' => true];
+    }
+
+    /**
+     * @return array
+     * @throws InvalidConfigException
      */
     public function actionProcessControl(): array
     {
-        $request = \Yii::$app->request;
+        $request = Yii::$app->request;
         $actionType = $request->post('actionType');
 
-        $response = ['isSuccessful' => true];
+        $response = ['success' => true];
 
         try {
             $process = $this->getSupervisorProcess($request->post('processName'));
 
             if ($process->hasMethod($actionType)) {
                 $process->$actionType();
+            } else {
+                $response = [
+                    'success' => false,
+                    'message' => 'Undefined action',
+                ];
             }
         } catch (SupervisorException $error) {
             $response = [
-                'isSuccessful' => false, 'error' => $error->getMessage()
+                'success' => false,
+                'message' => $error->getMessage(),
             ];
         }
 
@@ -165,14 +127,14 @@ class DefaultController extends Controller
 
     /**
      * @return array
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function actionSupervisorControl(): array
     {
-        $request = \Yii::$app->request;
+        $request = Yii::$app->request;
         $actionType = $request->post('actionType');
 
-        $response = ['isSuccessful' => true];
+        $response = ['success' => true];
 
         try {
             $supervisor = $this->getSupervisorMainProcess();
@@ -182,7 +144,8 @@ class DefaultController extends Controller
             }
         } catch (SupervisorException $error) {
             $response = [
-                'isSuccessful' => false, 'error' => $error->getMessage()
+                'success' => false,
+                'message' => $error->getMessage(),
             ];
         }
 
@@ -191,14 +154,14 @@ class DefaultController extends Controller
 
     /**
      * @return array
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function actionGroupControl(): array
     {
-        $request = \Yii::$app->request;
+        $request = Yii::$app->request;
         $actionType = $request->post('actionType');
 
-        $response = ['isSuccessful' => true];
+        $response = ['success' => true];
 
         try {
             $group = $this->getSupervisorGroup($request->post('groupName'));
@@ -208,7 +171,8 @@ class DefaultController extends Controller
             }
         } catch (SupervisorException $error) {
             $response = [
-                'isSuccessful' => false, 'error' => $error->getMessage()
+                'success' => false,
+                'message' => $error->getMessage(),
             ];
         }
 
@@ -217,14 +181,14 @@ class DefaultController extends Controller
 
     /**
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function actionProcessConfigControl(): array
     {
-        $request = \Yii::$app->request;
+        $request = Yii::$app->request;
         $actionType = $request->post('actionType');
 
-        $response = ['isSuccessful' => true];
+        $response = ['success' => true];
 
         try {
             $group = new ProcessConfig($request->post('groupName'));
@@ -236,7 +200,8 @@ class DefaultController extends Controller
             Event::trigger(Supervisor::class, Supervisor::EVENT_CONFIG_CHANGED);
         } catch (SupervisorException $error) {
             $response = [
-                'isSuccessful' => false, 'error' => $error->getMessage()
+                'success' => false,
+                'message' => $error->getMessage(),
             ];
         }
 
@@ -245,25 +210,29 @@ class DefaultController extends Controller
 
     /**
      * @return array
-     * @throws \infinitiweb\supervisorManager\components\supervisor\exceptions\ProcessException
-     * @throws \yii\base\InvalidConfigException
      */
     public function actionGetProcessLog(): array
     {
-        $request = \Yii::$app->request;
-
-        $response = ['isSuccessful' => false];
+        $request = Yii::$app->request;
 
         try {
             $processLog = $this->getSupervisorProcess($request->post('processName'))
                 ->getProcessOutput($request->post('logType'));
 
             $response = [
-                'isSuccessful' => true,
-                'processLog' => $processLog ?: 'No logs'
+                'success' => true,
+                'processLog' => $processLog ?: 'No logs',
             ];
         } catch (SupervisorException $error) {
-            $response = ['error' => $error->getMessage()];
+            $response = [
+                'success' => false,
+                'message' => $error->getMessage(),
+            ];
+        } catch (Exception $error) {
+            $response = [
+                'success' => false,
+                'message' => $error->getMessage(),
+            ];
         }
 
         return $response;
@@ -271,66 +240,46 @@ class DefaultController extends Controller
 
     /**
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function actionCountGroupProcesses(): array
     {
-        $group = new ProcessConfig(\Yii::$app->request->post('groupName'));
+        $group = new ProcessConfig(Yii::$app->request->post('groupName'));
 
         return [
+            'success' => true,
             'count' => $group->getNumprocs()
         ];
     }
 
     /**
-     * @param $view
-     * @param $data
-     *
-     * @return string
-     */
-    private function renderProcess($view, $data): string
-    {
-        return $this->renderAjax($view, $data);
-    }
-
-    /**
-     * @param \Exception $error
-     *
-     * @return string
-     */
-    private function renderErrorHandle(\Exception $error): string
-    {
-        return $this->render(sprintf("%s/%s", self::VIEWS_DIR, 'error'), ['message' => $error->getMessage()]);
-    }
-
-    /**
      * @return MainProcess|object
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     private function getSupervisorMainProcess(): MainProcess
     {
-        return \Yii::$container->get(MainProcess::class);
+        return Yii::$container->get(MainProcess::class);
     }
 
     /**
      * @param $processName
      *
      * @return Process|object
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     private function getSupervisorProcess($processName): Process
     {
-        return \Yii::$container->get(Process::class, [$processName]);
+        return Yii::$container->get(Process::class, [$processName]);
     }
 
     /**
      * @param $groupName
      *
      * @return Group|object
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     private function getSupervisorGroup($groupName): Group
     {
-        return \Yii::$container->get(Group::class, [$groupName]);
+        return Yii::$container->get(Group::class, [$groupName]);
     }
 }

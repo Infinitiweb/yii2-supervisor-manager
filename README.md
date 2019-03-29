@@ -26,7 +26,7 @@ Add module of extension in app config:
 ...
     'modules' => [
     ...
-        'supervisor' => [
+        'supervisorManager' => [
             'class' => 'infinitiweb\supervisorManager\Module',
             'authData' => [
                 'user' => 'supervisor_user',

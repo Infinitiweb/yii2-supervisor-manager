@@ -1,92 +1,132 @@
-function SupervisorManager()
-{
-    /**
-     * Initialize supervisor
-     */
-    this.init = function ()
-    {
-        this.setEventHandlers();
-    };
+$(document).ready(function () {
+    SupervisorManagerNew.init();
+});
+
+let SupervisorManagerNew = {
+    container: '#supervisor-manager-widget',
 
     /**
-     * Handle server response about supervisor control.
-     *
+     * @param event
+     */
+    init: function (event) {
+        $(document).on('click', '.processControl', SupervisorManagerNew.processControl);
+        $(document).on('click', '.supervisorControl', SupervisorManagerNew.supervisorControl);
+        $(document).on('click', '.groupControl [data-action]', SupervisorManagerNew.groupControl);
+        $(document).on('click', '.groupControl [data-group-process-delete]', SupervisorManagerNew.groupProcessDelete);
+        $(document).on('click', '.processList .showLog', SupervisorManagerNew.showLog);
+        $(document).on('submit', '#createGroupForm', SupervisorManagerNew.createGroup);
+    },
+
+    /**
      * @param response
      * @returns {boolean}
      */
-    function responseHandler(response)
-    {
-        if (response['isSuccessful']) {
-            $.pjax.reload({container:'#supervisor', timeout: 2000});
+    responseHandler: function (response) {
+        if (response['success']) {
+            SupervisorManagerNew.pjaxReload();
 
             return true;
         }
 
-        var logModal = $('#errorModal');
+        let $logModal = $('#errorModal');
 
-        logModal.find('.modal-body p').html(response['error']);
+        $logModal.find('.modal-body p').html(response['message']);
+        $logModal.modal();
+    },
 
-        logModal.modal();
-    }
+    pjaxReload: function () {
+        $.pjax.reload({container: SupervisorManagerNew.container, timeout: 2000});
+    },
 
     /**
-     * Event handler for main supervisor process control.
-     *
      * @param event
      */
-    this.supervisorControl = function(event)
-    {
-        var actionType = $(this).data('action');
+    supervisorControl: function (event) {
+        let actionType = $(this).data('action');
 
         if (actionType == 'refresh') {
-            $.pjax.reload({container:'#supervisor', timeout: 2000});
+            $.pjax.reload({container: SupervisorManagerNew.container, timeout: 2000});
 
             return;
+        } else if (actionType == 'restart') {
+            let doRestart = confirm('Restart supervisor? All processes will be killed');
 
-        } else if(actionType == 'restart') {
-            var doRestart = confirm('Restart supervisor? All processes will be killed');
-            if(!doRestart) {
+            if (!doRestart) {
                 return;
             }
         }
 
         $.post('/supervisor/default/supervisor-control', {
             actionType: actionType
-        }, responseHandler);
-    };
+        }, SupervisorManagerNew.responseHandler);
+    },
 
     /**
-     * Event handler for all supervisor sub processes control.
-     *
      * @param event
      */
-    this.processControl = function(event)
-    {
-        var processName = $(this).data('process-name'),
-
+    processControl: function (event) {
+        let processName = $(this).data('process-name'),
             actionType = $(this).data('action-type');
 
         $.post('/supervisor/default/process-control', {
             processName: processName,
             actionType: actionType
-        }, responseHandler);
-    };
+        }, SupervisorManagerNew.pjaxReload);
+    },
 
     /**
-     * Event handler for group of supervisor processes.
-     *
      * @param event
      */
-    this.groupControl = function(event)
-    {
-        var actionUrl = '/supervisor/default/group-control';
+    createGroup: function (event) {
+        let formData = $(this).serialize();
+
+        $.post('/supervisor/default/create-group', formData, SupervisorManagerNew.responseHandler);
+
+        $(this).trigger("reset");
+        $('#createGroup').modal('hide');
+
+        return false;
+    },
+
+    /**
+     * @param event
+     */
+    showLog: function (event) {
+        let processName = $(this).data('process-name'),
+            logType = $(this).data('log-type');
+
+        $.post('/supervisor/default/get-process-log', {
+            processName: processName,
+            logType: logType
+        }, function (response) {
+            let $logModal = $('#errorModal'),
+                message = null;
+
+            if (response['success']) {
+                $logModal = $('#processOutputModal');
+
+                message = response['processLog'].replace(/\n/g, '<br>');
+            } else {
+                message = response['message'];
+            }
+
+            $logModal.find('.modal-body p').html(message);
+            $logModal.modal();
+        });
+    },
+
+    /**
+     * @param event
+     */
+    groupControl: function (event) {
+        let actionUrl = '/supervisor/default/group-control';
 
         if ($(event.currentTarget).hasClass('processConfigControl')) {
             actionUrl = '/supervisor/default/process-config-control';
         }
 
-        var actionType  = $(this).data('action'),
-            groupName   = $(this).parents('.groupControl').data('groupName'),
+        var actionType = $(this).data('action'),
+            groupName = $(this).parents('.groupControl').data('groupName'),
             needConfirm = $(this).data('need-confirm');
 
         if (typeof needConfirm != 'undefined') {
@@ -98,27 +138,25 @@ function SupervisorManager()
         $.post(actionUrl, {
             actionType: actionType,
             groupName: groupName
-        }, responseHandler);
-    };
+        }, SupervisorManagerNew.responseHandler);
+    },
 
     /**
-     * Event handler to remove the process from the group supervisor
      * @param event
      */
-    this.groupProcessDelete = function(event)
-    {
-        var groupName = $(this).parents('.groupControl').data('groupName');
+    groupProcessDelete: function (event) {
+        let groupName = $(this).parents('.groupControl').data('groupName');
 
         $.post('/supervisor/default/count-group-processes', {
             groupName: groupName
-        }).done(function(response) {
-
-            var actionName = 'deleteGroupProcess';
+        }).done(function (response) {
+            let actionName = 'deleteGroupProcess';
 
             if (response['count'] == 1) {
                 if (!confirm("1 process left, do you want to delete group?")) {
                     return false;
                 }
+
                 actionName = 'deleteProcess';
             }
 
@@ -128,58 +166,8 @@ function SupervisorManager()
         function call(actionType) {
             $.post('/supervisor/default/process-config-control', {
                 actionType: actionType,
-                groupName : groupName
-            }, responseHandler);
+                groupName: groupName
+            }, SupervisorManagerNew.responseHandler);
         }
-    };
-
-    this.showLog = function(event)
-    {
-        var processName = $(this).data('process-name'),
-
-            logType = $(this).data('log-type');
-
-        $.post('/supervisor/default/get-process-log', {
-            processName: processName,
-            logType: logType
-        }, function(response) {
-
-            var logModal = $('#errorModal'),
-
-                message = null;
-
-            if (response['isSuccessful']) {
-                logModal = $('#processOutputModal');
-
-                message = response['processLog'].replace(/\n/g, '<br>');
-            } else {
-                message = response['error'];
-            }
-
-            logModal.find('.modal-body p').html(message);
-
-            logModal.modal();
-        });
-    };
-
-    this.setEventHandlers = function()
-    {
-        var self = this;
-
-        $(document).on(
-            'click', 'a.processControl', self.processControl
-        ).on(
-            'click', '.supervisorControl', self.supervisorControl
-        ).on(
-            'click', '.groupControl [data-action]', self.groupControl
-        ).on(
-            'click', '.groupControl [data-group-process-delete]', self.groupProcessDelete
-        ).on(
-            'click', '.processList .showLog', self.showLog
-        );
-    };
-}
-
-$(document).on('ready', function() {
-    (new SupervisorManager()).init();
-});
+    },
+};

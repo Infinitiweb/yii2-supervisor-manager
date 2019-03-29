@@ -14,7 +14,8 @@ use yii\widgets\ActiveForm;
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
 
                 <h4 class="modal-title" id="myModalLabel">
                     <?= Yii::t('common', 'Create new processes group'); ?>
@@ -62,7 +63,9 @@ use yii\widgets\ActiveForm;
                     <?= Yii::t('common', 'Close'); ?>
                 </button>
 
-                <?= Html::submitButton(Yii::t('common', 'Submit'), ['class' => 'btn btn-primary']); ?>
+                <?= Html::submitButton(Yii::t('common', 'Submit'), [
+                    'class' => 'btn btn-primary',
+                ]); ?>
                 <?php ActiveForm::end(); ?>
             </div>
         </div>

@@ -1,12 +1,13 @@
 <?php
 
 use infinitiweb\supervisorManager\assets\base\BaseAsset;
+use infinitiweb\supervisorManager\models\SupervisorGroupForm;
 use yii\widgets\Pjax;
 
 /**
  * @var $this yii\web\View
  * @var $dataProvider yii\data\ActiveDataProvider
- * @var $supervisorGroupForm \infinitiweb\supervisorManager\models\SupervisorGroupForm
+ * @var $supervisorGroupForm SupervisorGroupForm
  */
 
 BaseAsset::register($this);
@@ -19,7 +20,7 @@ echo $this->render('parts/_create-group', ['supervisorGroupForm' => $supervisorG
 ?>
 
 <div class="supervisor-index">
-    <?php Pjax::begin(['id' => 'supervisor', 'timeout' => 5000]); ?>
+    <?php Pjax::begin(['id' => 'supervisor-manager-widget', 'timeout' => 5000]); ?>
     <?= $this->render('parts/_grid', ['dataProvider' => $dataProvider]); ?>
     <?php Pjax::end(); ?>
 </div>

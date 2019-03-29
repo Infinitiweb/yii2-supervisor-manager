@@ -126,15 +126,13 @@ class ProcessConfig extends Component
         $configInArray = [];
 
         foreach ($this->allowedConfigOptions as $optionName) {
-            $configInArray[] = $optionName . '=' . $this->$optionName;
+            $configInArray[] = "{$optionName}={$this->$optionName}";
         }
 
         $configString = implode("\n", $configInArray);
 
         if ($this->state == 'create') {
-            return $this->config->createConfig(
-                $this->programName, $configString
-            );
+            return $this->config->createConfig($this->programName, $configString);
         } else {
             return $this->config->saveConfig($configString);
         }
