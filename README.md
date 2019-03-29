@@ -13,7 +13,7 @@ php composer.phar require --prefer-dist infinitiweb/yii2-supervisor-manager "^1.
 or add
 
 ```$xslt
-"infinitiweb/yii2-supervisor-manager": "*"
+"infinitiweb/yii2-supervisor-manager": "^1.1"
 ```
 
 to the require section of your `composer.json` file.
