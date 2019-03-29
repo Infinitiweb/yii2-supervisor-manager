@@ -56,7 +56,7 @@ let SupervisorManagerNew = {
             }
         }
 
-        $.post('/supervisor/default/supervisor-control', {
+        $.post('/supervisorManager/default/supervisor-control', {
             actionType: actionType
         }, SupervisorManagerNew.responseHandler);
     },
@@ -68,7 +68,7 @@ let SupervisorManagerNew = {
         let processName = $(this).data('process-name'),
             actionType = $(this).data('action-type');
 
-        $.post('/supervisor/default/process-control', {
+        $.post('/supervisorManager/default/process-control', {
             processName: processName,
             actionType: actionType
         }, SupervisorManagerNew.pjaxReload);
@@ -80,7 +80,7 @@ let SupervisorManagerNew = {
     createGroup: function (event) {
         let formData = $(this).serialize();
 
-        $.post('/supervisor/default/create-group', formData, SupervisorManagerNew.responseHandler);
+        $.post('/supervisorManager/default/create-group', formData, SupervisorManagerNew.responseHandler);
 
         $(this).trigger("reset");
         $('#createGroup').modal('hide');
@@ -95,7 +95,7 @@ let SupervisorManagerNew = {
         let processName = $(this).data('process-name'),
             logType = $(this).data('log-type');
 
-        $.post('/supervisor/default/get-process-log', {
+        $.post('/supervisorManager/default/get-process-log', {
             processName: processName,
             logType: logType
         }, function (response) {
@@ -119,10 +119,10 @@ let SupervisorManagerNew = {
      * @param event
      */
     groupControl: function (event) {
-        let actionUrl = '/supervisor/default/group-control';
+        let actionUrl = '/supervisorManager/default/group-control';
 
         if ($(event.currentTarget).hasClass('processConfigControl')) {
-            actionUrl = '/supervisor/default/process-config-control';
+            actionUrl = '/supervisorManager/default/process-config-control';
         }
 
         var actionType = $(this).data('action'),
@@ -147,7 +147,7 @@ let SupervisorManagerNew = {
     groupProcessDelete: function (event) {
         let groupName = $(this).parents('.groupControl').data('groupName');
 
-        $.post('/supervisor/default/count-group-processes', {
+        $.post('/supervisorManager/default/count-group-processes', {
             groupName: groupName
         }).done(function (response) {
             let actionName = 'deleteGroupProcess';
@@ -164,7 +164,7 @@ let SupervisorManagerNew = {
         });
 
         function call(actionType) {
-            $.post('/supervisor/default/process-config-control', {
+            $.post('/supervisorManager/default/process-config-control', {
                 actionType: actionType,
                 groupName: groupName
             }, SupervisorManagerNew.responseHandler);

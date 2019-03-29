@@ -21,10 +21,10 @@ $this->params['breadcrumbs'][] = $this->title;
             <p><?php echo isset($message) ? $message : 'Unknown error' ?></p>
 
             <p>If this message was caused after configuration changes, you
-                can <?php echo Html::a('restore previous configuration', Url::to('/supervisor/default/restore-from-backup')) ?></p>
+                can <?php echo Html::a('restore previous configuration', Url::to('/supervisorManager/default/restore-from-backup')) ?></p>
             <p>
                 Otherwise you
-                can <?php echo Html::a('start supervisor', Url::to('/supervisor/default/start-supervisor')) ?>.
+                can <?php echo Html::a('start supervisor', Url::to('/supervisorManager/default/start-supervisor')) ?>.
             </p>
         </div>
     </div>
